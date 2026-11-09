@@ -45,7 +45,7 @@
         .msg.in { background: #23232d; align-self: flex-start; border-bottom-left-radius: 4px; }
         .msg.out { background: #4a6ee0; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
         
-        .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35;}
+        .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35; margin-top: auto;}
         .offer-slider-container { display: flex; flex-direction: column; gap: 5px; width: 100%; align-items: center; }
         .offer-slider-container span { font-size: 18px; font-weight: 800; color: #ffdf6b; }
         input[type=range] {
@@ -66,7 +66,6 @@
         }
         .btn-act:active { background: #4a6ee0; transform: scale(0.98); }
         .btn-act.success { background: #4a6ee0; border: none; }
-        .btn-act.danger { border-color: #e04a4a; color: #ff6b6b; }
         .btn-act.gray { border-color: #333; color: #888; }
 
         .card { 
@@ -229,18 +228,18 @@
         let game = {
             money: 10000, dayStartMoney: 10000, day: 1, timeSeconds: 8 * 60, 
             tab: 'market', chat: [], currentClient: null, inventory: [], marketFilter: 'all',
-            offerValue: 0 // Текущее значение ползунка
+            offerValue: 0
         };
 
         let gameLoop;
 
         function load() {
-            let s = localStorage.getItem('techtok_trade_limit'); 
+            let s = localStorage.getItem('techtok_trade_v2'); 
             if (s) { try { game = JSON.parse(s); } catch(e) {} }
             if (game.tab === 'chat' && !game.currentClient) spawnClient();
             startTimeLoop(); render();
         }
-        function save() { localStorage.setItem('techtok_trade_limit', JSON.stringify(game)); }
+        function save() { localStorage.setItem('techtok_trade_v2', JSON.stringify(game)); }
 
         function showToast(msg, isError = false) {
             const t = document.getElementById('toast');
@@ -310,16 +309,13 @@
             const phone = PHONES_DB[Math.floor(Math.random() * PHONES_DB.length)];
             const state = STATES[Math.floor(Math.random() * STATES.length)];
             const askPrice = Math.floor(phone.basePrice * state.mult * (0.8 + Math.random() * 0.5)); 
-            game.currentClient = { phone: phone.model, class: phone.class, state: state.name, realPrice: phone.basePrice, askPrice: askPrice, color: phone.color, cam: phone.cam };
+            game.currentClient = { phone: phone.model, class: phone.class, state: state.name, realPrice: phone.basePrice, askPrice: askPrice, color: phone.color, cam: phone.cam, initialAsk: askPrice };
             game.chat = [{ type: 'in', text: `Привет! Продаю ${phone.model}, состояние: ${state.name}. Отдам за ${askPrice}₽` }];
             
-            // Инициализируем ползунок
             game.offerValue = Math.floor(askPrice * 0.8);
-
             save(); render();
         }
 
-        // Обновление текста над ползунком
         function updateOfferText(val) {
             game.offerValue = parseInt(val);
             const el = document.getElementById('offer-amount');
@@ -329,27 +325,34 @@
         function makeOffer() {
             const amount = game.offerValue;
             const ask = game.currentClient.askPrice;
+            const minAcceptable = Math.floor(game.currentClient.initialAsk * 0.55); // Минимальная цена, за которую клиент готов отдать (55% от изначальной)
 
             if (game.money < amount) { showToast("Не хватает денег! 💸", true); return; }
 
-            // Если предложение >= 80% от запроса — клиент соглашается
             if (amount >= ask * 0.8) {
+                // Согласие
                 game.chat.push({ type: 'out', text: `Беру за ${amount}₽. Договорились!` });
                 game.chat.push({ type: 'in', text: `Отлично! Телефон твой.` });
                 game.money -= amount;
                 game.inventory.push({ model: game.currentClient.phone, class: game.currentClient.class, state: game.currentClient.state, realPrice: game.currentClient.realPrice, buyPrice: amount, color: game.currentClient.color, cam: game.currentClient.cam });
                 game.currentClient = null; showToast("Телефон куплен!"); setTimeout(() => spawnClient(), 2000);
             } 
-            // Если предложение от 50% до 80% — клиент торгуется
             else if (amount >= ask * 0.5) {
-                const counter = Math.floor((amount + ask) / 2);
-                game.currentClient.askPrice = counter;
-                game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
-                game.chat.push({ type: 'in', text: `Не, это дешево. Давай за ${counter}₽, и по рукам.` });
-                game.offerValue = Math.floor(counter * 0.9);
+                // Клиент согласен торговаться, но не ниже минимальной
+                let counter = Math.floor((amount + ask) / 2);
+                if (counter < minAcceptable) {
+                    game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
+                    game.chat.push({ type: 'in', text: `Да ты офигел! Я за ${minAcceptable}₽ отдам, и то это грабеж. Другому продам.` });
+                    game.currentClient = null; showToast("Клиент ушел 😡", true); setTimeout(() => spawnClient(), 2000);
+                } else {
+                    game.currentClient.askPrice = counter;
+                    game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
+                    game.chat.push({ type: 'in', text: `Не, это дешево. Давай за ${counter}₽, и по рукам.` });
+                    game.offerValue = Math.floor(counter * 0.9);
+                }
             } 
-            // Если меньше 50% — клиент посылает
             else {
+                // Слишком наглое предложение
                 game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
                 game.chat.push({ type: 'in', text: `Ты че, издеваешься? За такие деньги только корпус. Не продам.` });
                 game.currentClient = null; showToast("Клиент ушел 😡", true); setTimeout(() => spawnClient(), 2000);
@@ -451,7 +454,6 @@
                     const minOffer = Math.floor(ask * 0.4);
                     const maxOffer = ask;
 
-                    // Ограничиваем ползунок нашими возможностями
                     let currentVal = game.offerValue;
                     if (currentVal < minOffer) currentVal = minOffer;
                     if (currentVal > maxOffer) currentVal = maxOffer;
@@ -502,19 +504,4 @@
                         <div style="font-size: 50px; margin-bottom: 10px;">👤</div>
                         <h2 style="color: #fff; margin-bottom: 5px;">Твой Профиль</h2>
                         <p style="color: #888; margin-bottom: 20px;">Перекуп со стажем</p>
-                        <div style="background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35; margin-bottom: 20px; text-align: left;">
-                            <p style="margin-bottom: 5px; color: #ccc;">День: <b style="color: #fff;">${game.day}</b></p>
-                            <p style="margin-bottom: 5px; color: #ccc;">Баланс: <b style="color: #ffdf6b;">${game.money.toLocaleString('ru-RU')}₽</b></p>
-                            <p style="color: #ccc;">Телефонов на складе: <b style="color: #fff;">${game.inventory.length}</b></p>
-                        </div>
-                        <button class="btn" style="background: #45a29e; color: #fff; margin-bottom: 10px;" onclick="exportSave()">📤 Экспорт сохранения</button>
-                        <button class="btn" style="background: #ff6b6b; color: #fff; margin-bottom: 10px;" onclick="importSave()">📥 Импорт сохранения</button>
-                    </div>
-                `;
-            }
-        }
-
-        load();
-    </script>
-</body>
-</html>
+                        <div style="background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35; margin-bottom: 20px;
