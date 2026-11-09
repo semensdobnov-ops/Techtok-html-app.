@@ -28,8 +28,6 @@ jobs:
           cordova create myapp com.techtok.app TechtokMarket
           cd myapp
           cordova platform add android
-          cordova plugin add cordova-plugin-whitelist
-          cordova plugin add cordova-plugin-inappbrowser
           rm -rf www/*
           cp ../index.html www/
           cordova build android
