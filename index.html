@@ -1,473 +1,822 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Течток: Перекуп PRO</title>
+    <title>iOS 18 - Techtok</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
         
-        body { 
-            background: #0f0f12; 
-            color: #e0e0e0; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            height: 100dvh;
-            overflow: hidden; 
+        body { background: #000; height: 100vh; height: 100dvh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+
+        .device {
+            width: 100%; height: 100%; max-width: 430px; max-height: 932px;
+            background: linear-gradient(135deg, #1a0b2e 0%, #4a1942 50%, #14062b 100%);
+            position: relative; overflow: hidden; 
+            border: 4px solid #333; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            transition: background 0.5s ease;
         }
+
+        #register-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; }
+        #register-screen h1 { color: #0a84ff; margin-bottom: 10px; font-size: 28px; text-align: center;}
+        #register-screen p { color: #888; margin-bottom: 30px; text-align: center; font-size: 14px;}
+        .reg-input { width: 100%; padding: 15px; border: 1px solid #333; background: #1c1c1e; color: white; font-size: 16px; margin-bottom: 20px; text-align: center;}
+        .reg-btn { width: 100%; padding: 15px; background: #0a84ff; color: white; font-size: 16px; font-weight: bold; border: none; cursor: pointer;}
+
+        .dynamic-island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: #000; border-radius: 20px; z-index: 1000; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; justify-content: center; align-items: center; color: white; overflow: hidden; cursor: pointer; }
+        .dynamic-island.expanded { width: 90%; height: 80px; border-radius: 30px; padding: 15px; justify-content: space-between;}
+        .island-content { display: none; width: 100%; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600;}
+        .dynamic-island.expanded .island-content { display: flex; }
+
+        #lock-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 80px 20px 30px; z-index: 10; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); touch-action: none; }
+        #lock-screen.unlocked { transform: translateY(-100%); opacity: 0; }
+
+        .time-lock { text-align: center; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.3); pointer-events: none;}
+        .time-lock h1 { font-size: 96px; font-weight: 600; letter-spacing: -2px; line-height: 1; margin-left: -5px;}
+        .time-lock p { font-size: 22px; font-weight: 500; margin-top: 10px;}
+
+        .widgets-lock { width: 100%; display: flex; gap: 12px; justify-content: center; margin-top: 20px; pointer-events: none;}
+        .widget { padding: 15px; color: white; flex: 1; text-align: left; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1);}
+        .widget h4 { font-size: 11px; text-transform: uppercase; opacity: 0.8; margin-bottom: 5px;}
+        .widget p { font-size: 15px; font-weight: 600;}
+
+        .swipe-up { color: white; font-size: 15px; font-weight: 500; opacity: 0.8; margin-bottom: 20px; animation: pulse 2s infinite; pointer-events: none;}
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; transform: translateY(-5px); } 100% { opacity: 0.4; transform: translateY(0); } }
+
+        #home-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 70px 20px; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); opacity: 0; pointer-events: none; }
+        #home-screen.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; row-gap: 20px; }
+        .app-icon { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.1s; }
+        .app-icon:active { transform: scale(0.85); opacity: 0.8; }
         
-        .top-bar { 
-            background: #1a1a20; padding: 10px 15px; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #2a2a35; z-index: 10; flex-shrink: 0;
-        }
-        .money { font-size: 18px; font-weight: 800; color: #fff; }
+        .icon-box { width: 64px; height: 64px; display: flex; justify-content: center; align-items: center; font-size: 32px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: #fff; }
+        .app-icon span { color: white; font-size: 12px; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
         
-        .time-box { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-        .day { font-size: 12px; font-weight: 800; color: #ffdf6b; background: rgba(255,223,107,0.1); padding: 2px 6px; border-radius: 4px; }
-        .clock { font-size: 14px; font-weight: 600; color: #45f3ff; font-variant-numeric: tabular-nums; }
+        .ic-msg { background: linear-gradient(180deg, #5bf075 0%, #1cb332 100%); }
+        .ic-cam { background: linear-gradient(180deg, #e5e5ea 0%, #a2a2a6 100%); }
+        .ic-photos { background: linear-gradient(180deg, #ffea61 0%, #ff9500 50%, #ff2d55 100%); }
+        .ic-settings { background: linear-gradient(180deg, #b0b0b5 0%, #8e8e93 100%); }
+        .ic-trade { background: linear-gradient(180deg, #5ec5ff 0%, #007aff 100%); }
+        .ic-trophy { background: linear-gradient(180deg, #ffdf6b 0%, #ff9500 100%); }
+        .ic-store { background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); }
+        .ic-music { background: linear-gradient(180deg, #ff5e7e 0%, #ff2d55 100%); }
+
+        .dock { position: absolute; bottom: 25px; left: 15px; right: 15px; padding: 12px 15px; display: flex; justify-content: space-around; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .dock .icon-box { width: 60px; height: 60px; font-size: 30px; box-shadow: none; }
+
+        .app-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; }
+        .app-screen.active { transform: translateY(0); }
+        .app-header { padding: 60px 20px 15px; display: flex; align-items: center; gap: 10px; background: #1c1c1e; color: #fff; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #333;}
+        .back-btn { font-size: 20px; color: #0a84ff; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px;}
+        .app-header h2 { font-size: 18px; font-weight: 600; margin-left: auto; margin-right: auto; transform: translateX(-20px);}
+        .app-content { flex: 1; overflow-y: auto; padding: 20px; background: #000; color: #fff; }
+
+        /* Музыка */
+        .music-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 120px;}
+        .track-item { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #222; cursor: pointer;}
+        .track-cover { width: 50px; height: 50px; border-radius: 5px; background: linear-gradient(45deg, #ff2d55, #5856d6); display: flex; align-items: center; justify-content: center; font-size: 24px;}
+        .track-info h4 { font-size: 15px; color: #fff; margin-bottom: 3px;}
+        .track-info p { font-size: 12px; color: #888;}
         
-        .content { 
-            flex: 1; overflow-y: auto; padding: 12px; 
-            display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; 
-        }
+        .player-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(30,30,30,0.95); backdrop-filter: blur(20px); padding: 15px 20px; border-top: 1px solid #333; z-index: 50; display: flex; flex-direction: column; gap: 10px;}
+        .player-info { display: flex; justify-content: space-between; align-items: center;}
+        .player-title { font-size: 14px; font-weight: bold; color: #fff;}
+        .player-controls { display: flex; justify-content: space-around; align-items: center; font-size: 24px; color: #fff;}
+        .player-controls span { cursor: pointer; padding: 5px 15px;}
+        .progress-bar { width: 100%; height: 4px; background: #444; border-radius: 2px; position: relative;}
+        .progress-fill { height: 100%; background: #fff; border-radius: 2px; width: 0%;}
+        .time-stamps { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-top: 5px;}
+
+        /* Стили контента */
+        .msg-bubble { max-width: 80%; padding: 10px 15px; margin-bottom: 10px; font-size: 14px; border: 1px solid #333;}
+        .msg-in { background: #26262a; align-self: flex-start; border-radius: 0 15px 15px 15px; }
+        .msg-out { background: #0a84ff; align-self: flex-end; border-radius: 15px 0 15px 15px; }
+        .chat-input-area { display: flex; gap: 10px; margin-top: 20px; }
+        .chat-input { flex: 1; padding: 12px; border: 1px solid #333; background: #1c1c1e; color: white; outline: none; }
+        .chat-send { background: #0a84ff; color: white; border: none; width: 40px; height: 40px; font-size: 18px; }
+        
+        .camera-view { background: #222; height: 60vh; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 2px solid #333; margin-bottom: 20px; transition: background 0.1s;}
+        .shutter-btn { width: 70px; height: 70px; background: #fff; border: 5px solid #ddd; margin: 0 auto; display: block; cursor: pointer; border-radius: 50%;}
+        .shutter-btn:active { background: #aaa; }
+
+        .photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .photo-item { aspect-ratio: 1; }
+
+        .settings-list { display: flex; flex-direction: column; gap: 10px; }
+        .settings-item { background: #1c1c1e; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; cursor: pointer; border-bottom: 1px solid #333;}
+        .toggle { width: 50px; height: 30px; background: #333; position: relative; transition: 0.3s; cursor: pointer; border-radius: 15px;}
+        .toggle.on { background: #34c759; }
+        .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .toggle.on::after { left: 23px; }
+
+        .wallpaper-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;}
+        .wallpaper-option { height: 100px; cursor: pointer; border: 2px solid transparent; }
+        .wallpaper-option:active { border-color: #0a84ff; }
+
+        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #1c1c1e; margin-bottom: 10px; border: 1px solid #333;}
+        .leaderboard-item.me { background: rgba(10, 132, 255, 0.2); border: 1px solid #0a84ff; }
+        .rank { font-size: 18px; font-weight: 800; color: #ffdf6b; width: 30px; }
+        .p-name { flex: 1; font-weight: 600; margin-left: 10px; }
+        .p-score { font-weight: 800; color: #34c759; }
+
+        /* Игра Течток */
+        .game-top-bar { background: #1a1a20; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2a35; flex-shrink: 0; }
+        .game-money { font-size: 18px; font-weight: 800; color: #fff; }
+        .game-time-box { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+        .game-day { font-size: 12px; font-weight: 800; color: #ffdf6b; background: rgba(255,223,107,0.1); padding: 2px 6px; }
+        .game-clock { font-size: 14px; font-weight: 600; color: #45f3ff; font-variant-numeric: tabular-nums; }
         
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; }
-
         .chat-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-        .msg { 
-            max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 13px; 
-            line-height: 1.4; word-wrap: break-word; animation: fadeIn 0.3s ease;
-        }
-        .msg.in { background: #23232d; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .msg.out { background: #4a6ee0; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
-        
-        .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35; margin-top: auto;}
+        .msg { max-width: 85%; padding: 10px 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; border: 1px solid #333;}
+        .msg.in { background: #23232d; align-self: flex-start; border-radius: 0 10px 10px 10px; }
+        .msg.out { background: #4a6ee0; color: #fff; align-self: flex-end; border-radius: 10px 0 10px 10px;}
+        .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; background: #1a1a20; padding: 15px; border: 1px solid #2a2a35;}
         .offer-slider-container { display: flex; flex-direction: column; gap: 5px; width: 100%; align-items: center; }
-        .offer-slider-container span { font-size: 18px; font-weight: 800; color: #ffdf6b; }
-        input[type=range] {
-            -webkit-appearance: none; width: 100%; background: transparent; height: 30px;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
-            background: #fff; cursor: pointer; margin-top: -9px; box-shadow: 0 0 10px rgba(255,255,255,0.5);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 6px; cursor: pointer; background: #333; border-radius: 3px;
-        }
-        
-        .btn-act { 
-            background: #23232d; color: #fff; border: 1px solid #4a6ee0; 
-            padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; 
-            width: 100%; transition: 0.2s; 
-        }
-        .btn-act:active { background: #4a6ee0; transform: scale(0.98); }
+        .offer-slider-container span { font-size: 16px; font-weight: 800; color: #ffdf6b; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; height: 30px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; background: #fff; cursor: pointer; margin-top: -9px; border-radius: 50%;}
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #333; }
+        .btn-act { background: #23232d; color: #fff; border: 1px solid #4a6ee0; padding: 12px; font-size: 14px; font-weight: 600; width: 100%; }
+        .btn-act:active { background: #4a6ee0; }
         .btn-act.success { background: #4a6ee0; border: none; }
         .btn-act.gray { border-color: #333; color: #888; }
 
-        .card { 
-            background: #1a1a20; border-radius: 12px; padding: 10px; 
-            display: flex; flex-direction: column; border: 1px solid #2a2a35; 
-            width: 100%; min-width: 0;
-        }
+        .card { background: #1a1a20; padding: 10px; display: flex; flex-direction: column; border: 1px solid #2a2a35; width: 100%; min-width: 0; }
+        .card-img-placeholder { width: 100%; height: 90px; background: #111115; display: flex; align-items: center; justify-content: center; border: 1px solid #222; position: relative; margin-bottom: 8px; }
         
-        .card-img-placeholder { 
-            width: 100%; height: 90px; background: #111115; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid #222; position: relative; margin-bottom: 8px;
-        }
+        .phone-body { width: 32px; height: 64px; border: 2px solid; position: relative; border-radius: 4px;}
+        .cam-single::after { content: ''; position: absolute; top: 4px; left: 4px; width: 8px; height: 8px; border: 1px solid #333; background: #111; border-radius: 50%;}
+        .cam-dual::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 14px; border: 1px solid #333; background: #111; }
+        .cam-triple::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; border: 1px solid #333; background: #111; border-radius: 50%; box-shadow: 0 12px 0 -2px #111; }
+        .cam-vertical::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 20px; border: 1px solid #333; background: #111; }
         
-        .phone-body {
-            width: 32px; height: 64px; border: 2px solid; border-radius: 6px;
-            position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        
-        .cam-single::after { content: ''; position: absolute; top: 4px; left: 4px; width: 8px; height: 8px; border: 1px solid #333; border-radius: 50%; background: #111; }
-        .cam-dual::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 14px; border: 1px solid #333; border-radius: 3px; background: #111; }
-        .cam-triple::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; border: 1px solid #333; border-radius: 50%; background: #111; box-shadow: 0 12px 0 -2px #111; }
-        .cam-vertical::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 20px; border: 1px solid #333; border-radius: 3px; background: #111; }
-
         .card-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; min-width: 0; }
-        .card-title { 
-            font-weight: 800; font-size: 12px; color: #fff; line-height: 1.2; 
-            height: 28px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
-            -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-        }
+        .card-title { font-weight: 800; font-size: 12px; color: #fff; line-height: 1.2; height: 28px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .card-sub { font-size: 10px; color: #888; margin-bottom: 2px;}
-        
-        .badge { 
-            font-size: 9px; font-weight: 800; padding: 2px 4px; border-radius: 4px; 
-            display: inline-block; margin-top: 2px; width: fit-content; text-transform: uppercase;
-        }
-        .badge.budget { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
-        .badge.mid { background: rgba(255, 223, 107, 0.15); color: #ffdf6b; }
-        .badge.flagship { background: rgba(69, 243, 255, 0.15); color: #45f3ff; }
-        
+        .badge { font-size: 9px; font-weight: 800; padding: 2px 4px; display: inline-block; margin-top: 2px; width: fit-content; text-transform: uppercase; border: 1px solid transparent;}
+        .badge.budget { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; border-color: #ff6b6b;}
+        .badge.mid { background: rgba(255, 223, 107, 0.15); color: #ffdf6b; border-color: #ffdf6b;}
+        .badge.flagship { background: rgba(69, 243, 255, 0.15); color: #45f3ff; border-color: #45f3ff;}
         .card-price { font-size: 14px; font-weight: 800; color: #fff; margin-top: auto; }
-        
         .card-buttons { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; width: 100%; }
-        .btn { 
-            background: #fff; color: #000; border: none; padding: 8px; border-radius: 6px; 
-            font-weight: 800; font-size: 12px; transition: 0.2s; text-align: center; width: 100%;
-        }
-        .btn:active { opacity: 0.8; transform: scale(0.97); }
+        .btn { background: #fff; color: #000; border: none; padding: 8px; font-weight: 800; font-size: 12px; text-align: center; width: 100%; }
         .btn-repair { background: #ffdf6b; color: #000; }
+        .btn-firmware { background: #af52de; color: #fff; }
         .btn-sell { background: #45f3ff; color: #000; }
         .btn:disabled { background: #333; color: #666; }
-
-        .bottom-nav { 
-            background: #1a1a20; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 15px)); 
-            display: flex; justify-content: space-around; border-top: 1px solid #2a2a35; flex-shrink: 0;
-        }
-        .nav-btn { 
-            background: transparent; color: #666; border: none; padding: 6px; font-weight: 800; font-size: 11px; 
-            display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.3s; width: 25%;
-        }
-        .nav-btn.active { color: #fff; }
-        .nav-btn i { font-size: 18px; font-style: normal; }
         
+        .game-nav { background: #1a1a20; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 15px)); display: flex; justify-content: space-around; border-top: 1px solid #2a2a35; flex-shrink: 0; }
+        .game-nav-btn { background: transparent; color: #666; border: none; padding: 6px; font-weight: 800; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 25%; }
+        .game-nav-btn.active { color: #fff; }
+        .game-nav-btn i { font-size: 18px; font-style: normal; }
         .empty { text-align: center; color: #555; margin-top: 50px; font-size: 15px; font-weight: 600; }
-
         .filters { display: flex; gap: 8px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; width: 100%; }
-        .filter-btn { 
-            background: #1a1a20; color: #aaa; border: 1px solid #2a2a35; 
-            padding: 6px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap;
-        }
+        .filter-btn { background: #1a1a20; color: #aaa; border: 1px solid #2a2a35; padding: 6px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
         .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
-
-        .toast {
-            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: #fff; color: #000; padding: 10px 20px; border-radius: 30px;
-            font-weight: 600; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 999;
-            text-align: center; white-space: nowrap; opacity: 0; pointer-events: none;
-        }
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #fff; color: #000; padding: 10px 20px; font-weight: 600; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.3s; z-index: 999; text-align: center; white-space: nowrap; opacity: 0; pointer-events: none; }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.error { background: #ff6b6b; color: #fff; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px);
-        }
-        .modal-overlay.show { opacity: 1; pointer-events: auto; }
-        .modal {
-            background: #1a1a20; padding: 25px; border-radius: 20px; width: 85%; text-align: center;
-            border: 1px solid #45f3ff; box-shadow: 0 0 30px rgba(69,243,255,0.2);
-            transform: translateY(20px); transition: 0.3s;
-        }
-        .modal-overlay.show .modal { transform: translateY(0); }
-        .modal h2 { color: #45f3ff; margin-bottom: 15px; font-size: 20px; }
-        .modal p { margin-bottom: 10px; font-size: 14px; color: #ccc; }
-        .modal .profit { font-size: 24px; font-weight: 800; color: #fff; margin: 15px 0; }
-        .modal .btn { width: 100%; padding: 12px; margin-top: 15px; background: #45f3ff; }
+        .close-game-btn { position: absolute; top: 90px; right: 15px; z-index: 105; cursor: pointer; width: 35px; height: 35px; background: rgba(255,255,255,0.15); display: flex; justify-content: center; align-items: center; color: white; backdrop-filter: blur(10px); font-weight: bold; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .promo-area { background: #1a1a20; padding: 20px; border: 1px solid #2a2a35; text-align: center; margin-bottom: 20px;}
+        .promo-area h3 { font-size: 16px; margin-bottom: 10px; color: #fff;}
+        .promo-input { width: 100%; padding: 12px; border: 1px solid #333; background: #111; color: #fff; margin-bottom: 10px; text-align: center; font-size: 16px; text-transform: uppercase;}
+        .promo-btn { width: 100%; padding: 12px; background: #34c759; color: #fff; font-weight: bold; border: none; cursor: pointer;}
+
+        #flappyCanvas { display: block; margin: 0 auto; background: #70c5ce; border: 2px solid #fff; }
+        .game-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 200;}
+        .game-overlay.active { display: flex; }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <div class="money" id="ui-money">💰 10 000₽</div>
-        <div class="time-box">
-            <div class="day">День <span id="ui-day">1</span></div>
-            <div class="clock" id="ui-clock">08:00</div>
+    <div class="device" id="device">
+        
+        <div id="register-screen">
+            <h1>Techtok Market</h1>
+            <p>Введи свой никнейм, чтобы начать карьеру перекупа</p>
+            <input type="text" class="reg-input" id="reg-name" placeholder="Твой ник (напр. Nexi)" maxlength="12">
+            <button class="reg-btn" onclick="registerUser()">Начать игру</button>
         </div>
-    </div>
 
-    <div class="content" id="ui-content"></div>
-
-    <div class="bottom-nav">
-        <button class="nav-btn active" onclick="switchTab('market')"><i>🏪</i>Маркет</button>
-        <button class="nav-btn" onclick="switchTab('chat')"><i>💬</i>Чаты</button>
-        <button class="nav-btn" onclick="switchTab('inventory')"><i>📦</i>Склад</button>
-        <button class="nav-btn" onclick="switchTab('profile')"><i>👤</i>Профиль</button>
-    </div>
-
-    <div class="toast" id="toast">Текст</div>
-
-    <div class="modal-overlay" id="endDayModal">
-        <div class="modal">
-            <h2>🌙 Конец дня <span id="modal-day-num">1</span></h2>
-            <p>Баланс на утро: <span id="modal-start-money">0</span>₽</p>
-            <p>Баланс на вечер: <span id="modal-end-money">0</span>₽</p>
-            <div class="profit" id="modal-profit">+0₽</div>
-            <button class="btn" onclick="closeDayModal()">Начать новый день</button>
+        <div class="dynamic-island" id="dynamic-island" onclick="toggleIsland()">
+            <div style="font-size: 10px; opacity: 0.5;">⬛</div>
+            <div class="island-content">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="color:#0a84ff; font-size:20px;">🎵</span>
+                    <div>
+                        <div style="font-size:12px; color:#888; margin-bottom:2px;">Играет сейчас</div>
+                        <div id="island-track-name">Nexi - aeth is goat</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:15px; font-size:20px;">
+                    <span>⏮</span><span>⏸</span><span>⏭</span>
+                </div>
+            </div>
         </div>
+
+        <div id="lock-screen">
+            <div class="time-lock">
+                <h1>09:41</h1>
+                <p>Четверг, 26 сентября</p>
+            </div>
+            <div class="widgets-lock">
+                <div class="widget"><h4>Погода</h4><p>+21° Облачно</p></div>
+                <div class="widget"><h4>Баланс</h4><p id="lock-balance">0 ₽</p></div>
+            </div>
+            <div class="swipe-up">Свайп вверх ⬆️</div>
+        </div>
+
+        <div id="home-screen">
+            <div class="app-grid">
+                <div class="app-icon" onclick="openGenericApp('msg')"><div class="icon-box ic-msg">💬</div><span>Сообщения</span></div>
+                <div class="app-icon" onclick="openGenericApp('cam')"><div class="icon-box ic-cam">📷</div><span>Камера</span></div>
+                <div class="app-icon" onclick="openGenericApp('photos')"><div class="icon-box ic-photos">🌸</div><span>Фото</span></div>
+                <div class="app-icon" onclick="openGenericApp('rating')"><div class="icon-box ic-trophy">🏆</div><span>Рейтинг</span></div>
+                <div class="app-icon" onclick="openTechtok()"><div class="icon-box ic-trade">🏪</div><span>Течток</span></div>
+                <div class="app-icon" onclick="openAppStore()"><div class="icon-box ic-store">🅰️</div><span>App Store</span></div>
+                <div class="app-icon" onclick="openMusic()"><div class="icon-box ic-music">🎵</div><span>Музыка</span></div>
+                <div class="app-icon" onclick="openGenericApp('settings')"><div class="icon-box ic-settings">⚙️</div><span>Настройки</span></div>
+            </div>
+            <div class="dock">
+                <div class="icon-box" style="background:#34c759" onclick="openGenericApp('call')">📞</div>
+                <div class="icon-box" style="background:#007aff" onclick="openGenericApp('safari')">🌐</div>
+                <div class="icon-box ic-msg" onclick="openGenericApp('msg')">💬</div>
+                <div class="icon-box ic-music" onclick="openMusic()">🎵</div>
+            </div>
+        </div>
+
+        <!-- Музыка -->
+        <div id="music-screen" class="app-screen">
+            <div class="app-header">
+                <div class="back-btn" onclick="closeMusic()">‹ Назад</div>
+                <h2>Сейчас играет</h2>
+            </div>
+            <div class="app-content" style="padding-bottom: 100px;">
+                <div class="music-list" id="musicList">
+                    <div class="track-item" onclick="playTrack(0, 'Nexi - aeth is goat', 'AI Generated')">
+                        <div class="track-cover">🎵</div>
+                        <div class="track-info"><h4>Nexi - aeth is goat</h4><p>AI Generated</p></div>
+                    </div>
+                    <div class="track-item" onclick="playTrack(1, 'Киберпанк', 'Синтвейв')">
+                        <div class="track-cover" style="background: linear-gradient(45deg, #00c6ff, #0072ff);">🎹</div>
+                        <div class="track-info"><h4>Киберпанк</h4><p>Синтвейв</p></div>
+                    </div>
+                    <div class="track-item" onclick="playTrack(2, 'Рассвет', 'Чилл')">
+                        <div class="track-cover" style="background: linear-gradient(45deg, #f12711, #f5af19);">🎸</div>
+                        <div class="track-info"><h4>Рассвет</h4><p>Чилл</p></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="player-bar" id="musicPlayer" style="display: none;">
+                <div class="player-info">
+                    <div class="player-title" id="currentTrackName">Название трека</div>
+                    <div id="playPauseIcon" onclick="togglePlay()" style="cursor: pointer; font-size: 20px;">⏸</div>
+                </div>
+                <div class="progress-bar" onclick="seekMusic(event)">
+                    <div class="progress-fill" id="musicProgress"></div>
+                </div>
+                <div class="time-stamps">
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+                <div class="player-controls">
+                    <span onclick="prevTrack()">⏮</span>
+                    <span onclick="togglePlay()" id="playPauseBtn">⏸</span>
+                    <span onclick="nextTrack()">⏭</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Store -->
+        <div id="appstore-screen" class="app-screen">
+            <div class="app-header">
+                <div class="back-btn" onclick="closeAppStore()">‹ Назад</div>
+                <h2>App Store</h2>
+            </div>
+            <div class="app-content">
+                <div class="card" style="flex-direction: row; align-items: center; gap: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="font-size: 40px;">🐦</div>
+                    <div style="flex: 1;">
+                        <h3 style="color: #fff; margin-bottom: 5px;">Flappy Bird</h3>
+                        <p style="color: #888; font-size: 12px; margin-bottom: 10px;">Классическая аркада</p>
+                        <button class="btn" style="width: auto; padding: 8px 20px;" onclick="playFlappy()">Открыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flappy Bird Game -->
+        <div id="flappy-screen" class="app-screen" style="background: #000;">
+            <div class="app-header">
+                <div class="back-btn" onclick="closeFlappy()">‹ Назад</div>
+                <h2>Flappy Bird</h2>
+            </div>
+            <div style="flex: 1; position: relative; display: flex; justify-content: center; align-items: center;">
+                <canvas id="flappyCanvas" width="320" height="480"></canvas>
+                <div class="game-overlay" id="gameOverlay">
+                    <h2 style="color: #fff; margin-bottom: 20px;">Игра окончена</h2>
+                    <p style="color: #fff; margin-bottom: 20px;">Счет: <span id="finalScore" style="color: #ffdf6b; font-weight: bold; font-size: 24px;">0</span></p>
+                    <button class="btn" onclick="resetFlappy()">Играть снова</button>
+                </div>
+            </div>
+            <div style="text-align: center; padding: 20px; color: #888;">Нажимай на экран, чтобы летать</div>
+        </div>
+
+        <div id="generic-app-screen" class="app-screen">
+            <div class="app-header">
+                <div class="back-btn" onclick="closeGenericApp()">‹ Назад</div>
+                <h2 id="generic-app-title">Приложение</h2>
+            </div>
+            <div class="app-content" id="generic-app-content"></div>
+        </div>
+
+        <div id="techtok-screen" class="app-screen">
+            <div class="game-top-bar" style="padding-top: 60px;">
+                <div class="game-money" id="ui-money">💰 0₽</div>
+                <div class="game-time-box">
+                    <div class="game-day">День <span id="ui-day">1</span></div>
+                    <div class="game-clock" id="ui-clock">08:00</div>
+                </div>
+            </div>
+            <div class="close-game-btn" onclick="closeTechtok()">✕</div>
+            <div class="app-content" style="padding: 15px; background: #0f0f12; flex: 1; overflow-y: auto;" id="ui-content"></div>
+            <div class="game-nav">
+                <button class="game-nav-btn active" onclick="switchTab('market')"><i>🏪</i>Маркет</button>
+                <button class="game-nav-btn" onclick="switchTab('chat')"><i>💬</i>Чаты</button>
+                <button class="game-nav-btn" onclick="switchTab('inventory')"><i>📦</i>Склад</button>
+                <button class="game-nav-btn" onclick="switchTab('profile')"><i>👤</i>Профиль</button>
+            </div>
+        </div>
+
+        <div class="toast" id="toast">Текст</div>
     </div>
 
     <script>
-        const PHONES_DB = [
-            { id: 1, model: "Samsung Galaxy A13", class: "budget", basePrice: 3500, color: "#333", cam: "triple" },
-            { id: 2, model: "Samsung Galaxy S23", class: "flagship", basePrice: 30000, color: "#a9b2a6", cam: "triple" },
-            { id: 3, model: "Motorola Moto G75", class: "mid", basePrice: 8000, color: "#4a6ee0", cam: "dual" },
-            { id: 4, model: "Sony Xperia 1 IV", class: "flagship", basePrice: 25000, color: "#2e8b57", cam: "vertical" },
-            { id: 5, model: "Honor X7b", class: "budget", basePrice: 6000, color: "#c5a059", cam: "dual" },
-            { id: 6, model: "Xiaomi Redmi Note 12", class: "mid", basePrice: 9000, color: "#b22222", cam: "triple" },
-            { id: 7, model: "iPhone 13 Pro", class: "flagship", basePrice: 35000, color: "#4b6c8f", cam: "triple" },
-            { id: 8, model: "iPhone 11", class: "mid", basePrice: 15000, color: "#800080", cam: "dual" },
-            { id: 9, model: "POCO X6 Pro", class: "mid", basePrice: 12000, color: "#000000", cam: "triple" },
-            { id: 10, model: "Nothing Phone (1)", class: "mid", basePrice: 14000, color: "#f5f5dc", cam: "dual" },
-            { id: 11, model: "Tecno Pova 6 Pro", class: "budget", basePrice: 7000, color: "#4169e1", cam: "triple" },
-            { id: 12, model: "Infinix Hot 60", class: "budget", basePrice: 4500, color: "#8b4513", cam: "dual" },
-            { id: 13, model: "Google Pixel 8", class: "flagship", basePrice: 32000, color: "#708090", cam: "dual" },
-            { id: 14, model: "Huawei P60 Pro", class: "flagship", basePrice: 28000, color: "#dcdcdc", cam: "triple" },
-            { id: 15, model: "Realme 11 Pro", class: "mid", basePrice: 10000, color: "#ffd700", cam: "dual" }
+        // --- АУДИО ПЛЕЕР ---
+        const musicDB = [
+            { name: "Nexi - aeth is goat", artist: "AI", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { name: "Киберпанк", artist: "Синтвейв", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { name: "Рассвет", artist: "Чилл", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
         ];
+        let currentTrackIndex = 0;
+        let audio = new Audio();
+        let isPlaying = false;
 
-        const STATES = [
-            { name: "убитый", mult: 0.3, repair: 1000 },
-            { name: "треснул", mult: 0.5, repair: 800 },
-            { name: "норм", mult: 0.8, repair: 300 },
-            { name: "идеал", mult: 1.2, repair: 0 }
-        ];
+        function openMusic() { document.getElementById('music-screen').classList.add('active'); }
+        function closeMusic() { document.getElementById('music-screen').classList.remove('active'); }
 
-        let game = {
-            money: 10000, dayStartMoney: 10000, day: 1, timeSeconds: 8 * 60, 
-            tab: 'market', chat: [], currentClient: null, inventory: [], marketFilter: 'all',
-            offerValue: 0
-        };
+        function playTrack(index, name, artist) {
+            currentTrackIndex = index;
+            audio.src = musicDB[index].url;
+            document.getElementById('musicPlayer').style.display = 'flex';
+            document.getElementById('currentTrackName').innerText = name;
+            document.getElementById('island-track-name').innerText = name;
+            
+            audio.play();
+            isPlaying = true;
+            updatePlayIcon();
+            
+            audio.ontimeupdate = updateProgress;
+            audio.onloadedmetadata = () => {
+                document.getElementById('totalTime').innerText = formatTime(audio.duration);
+            };
+            audio.onended = nextTrack;
+        }
 
-        let gameLoop;
+        function togglePlay() {
+            if (audio.paused) { audio.play(); isPlaying = true; }
+            else { audio.pause(); isPlaying = false; }
+            updatePlayIcon();
+        }
+
+        function updatePlayIcon() {
+            const icon = isPlaying ? '⏸' : '▶️';
+            document.getElementById('playPauseBtn').innerText = icon;
+            document.getElementById('playPauseIcon').innerText = icon;
+        }
+
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % musicDB.length;
+            playTrack(currentTrackIndex, musicDB[currentTrackIndex].name, musicDB[currentTrackIndex].artist);
+        }
+
+        function prevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + musicDB.length) % musicDB.length;
+            playTrack(currentTrackIndex, musicDB[currentTrackIndex].name, musicDB[currentTrackIndex].artist);
+        }
+
+        function updateProgress() {
+            if(audio.duration) {
+                let percent = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('musicProgress').style.width = percent + '%';
+                document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
+            }
+        }
+
+        function seekMusic(e) {
+            if(!audio.duration) return;
+            let rect = e.target.getBoundingClientRect();
+            let pos = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pos * audio.duration;
+        }
+
+        function formatTime(seconds) {
+            if(isNaN(seconds)) return "0:00";
+            let m = Math.floor(seconds / 60);
+            let s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // --- iOS ЛОГИКА ---
+        let playerName = localStorage.getItem('techtok_player_name');
+        if (playerName) { document.getElementById('register-screen').style.display = 'none'; } 
+        else { document.getElementById('register-screen').style.display = 'flex'; }
+
+        function registerUser() {
+            const name = document.getElementById('reg-name').value.trim();
+            if(name.length < 2) { alert("Ник минимум 2 символа!"); return; }
+            playerName = name;
+            localStorage.setItem('techtok_player_name', playerName);
+            document.getElementById('register-screen').style.display = 'none';
+            load(); 
+        }
+
+        let startY = 0;
+        const lockScreen = document.getElementById('lock-screen');
+        lockScreen.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, {passive: true});
+        lockScreen.addEventListener('touchend', (e) => {
+            let endY = e.changedTouches[0].clientY;
+            if (startY - endY > 50) unlock();
+        }, {passive: true});
+
+        function unlock() {
+            lockScreen.classList.add('unlocked');
+            setTimeout(() => { document.getElementById('home-screen').classList.add('active'); }, 200);
+        }
+
+        function toggleIsland() { document.getElementById('dynamic-island').classList.toggle('expanded'); }
+
+        function openGenericApp(app) {
+            const screen = document.getElementById('generic-app-screen');
+            const title = document.getElementById('generic-app-title');
+            const content = document.getElementById('generic-app-content');
+            screen.classList.add('active');
+            
+            if(app === 'msg') {
+                title.innerText = "Сообщения";
+                content.innerHTML = `<div style="display:flex; flex-direction:column; gap:10px; height: 100%;"><div style="flex:1; overflow-y:auto;" id="msg-history"><div class="msg-bubble msg-in">Привет, ${playerName}! Как игра?</div><div class="msg-bubble msg-out">Отлично, уже торгую!</div></div><div class="chat-input-area"><input type="text" class="chat-input" id="msg-input" placeholder="Сообщение..."><button class="chat-send" onclick="sendMsg()">➤</button></div></div>`;
+            } else if (app === 'cam') {
+                title.innerText = "Камера";
+                content.innerHTML = `<div class="camera-view" id="camera-view">📷</div><button class="shutter-btn" onclick="takePhoto()"></button>`;
+            } else if (app === 'photos') {
+                title.innerText = "Фото";
+                content.innerHTML = `<div class="photos-grid"><div class="photo-item" style="background: linear-gradient(45deg, #ff9a9e, #fecfef);"></div><div class="photo-item" style="background: linear-gradient(45deg, #a18cd1, #fbc2eb);"></div><div class="photo-item" style="background: linear-gradient(45deg, #84fab0, #8fd3f4);"></div><div class="photo-item" style="background: linear-gradient(45deg, #fccb90, #d57eeb);"></div><div class="photo-item" style="background: linear-gradient(45deg, #e0c3fc, #8ec5fc);"></div><div class="photo-item" style="background: linear-gradient(45deg, #f093fb, #f5576c);"></div></div>`;
+            } else if (app === 'rating') {
+                openLeaderboard(title, content);
+            } else if (app === 'settings') {
+                title.innerText = "Настройки";
+                content.innerHTML = `
+                    <div class="settings-list">
+                        <div class="settings-item" onclick="openSettingsSub('device')"><span>📱 Об устройстве</span><span style="color:#888;">></span></div>
+                        <div class="settings-item" onclick="openSettingsSub('wallpaper')"><span>🖼 Обои</span><span style="color:#888;">></span></div>
+                        <div class="settings-item"><span>✈️ Авиарежим</span> <div class="toggle" onclick="event.stopPropagation(); this.classList.toggle('on')"></div></div>
+                        <div class="settings-item"><span>📶 Wi-Fi</span> <div class="toggle on" onclick="event.stopPropagation(); this.classList.toggle('on')"></div></div>
+                    </div>
+                `;
+            } else {
+                title.innerText = "Приложение";
+                content.innerHTML = `<div class="empty-app">🚧 В разработке</div>`;
+            }
+        }
+
+        function openLeaderboard(title, content) {
+            title.innerText = "Рейтинг перекупов";
+            let bots = JSON.parse(localStorage.getItem('techtok_bots'));
+            if(!bots) {
+                bots = [{ name: "KirillOrlov", score: 15400 },{ name: "AnnaBelova", score: 12800 },{ name: "Semen_S", score: 9500 },{ name: "TechGuru", score: 8200 },{ name: "NoobMaster", score: 5000 }];
+                localStorage.setItem('techtok_bots', JSON.stringify(bots));
+            } else {
+                bots.forEach(b => b.score += Math.floor(Math.random() * 500));
+                localStorage.setItem('techtok_bots', JSON.stringify(bots));
+            }
+            let allPlayers = [...bots];
+            let myScore = game ? game.money : 0;
+            allPlayers.push({ name: playerName, score: myScore, isMe: true });
+            allPlayers.sort((a, b) => b.score - a.score);
+            let html = `<p style="color:#888; margin-bottom:15px; font-size:14px;">Топ игроков по балансу</p>`;
+            allPlayers.forEach((p, i) => {
+                let rankEmoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
+                let meClass = p.isMe ? 'me' : '';
+                let nameText = p.isMe ? `${p.name} (Ты)` : p.name;
+                html += `<div class="leaderboard-item ${meClass}"><div class="rank">${rankEmoji}</div><div class="p-name">${nameText}</div><div class="p-score">${p.score.toLocaleString('ru-RU')} ₽</div></div>`;
+            });
+            content.innerHTML = html;
+        }
+
+        function openSettingsSub(type) {
+            const title = document.getElementById('generic-app-title');
+            const content = document.getElementById('generic-app-content');
+            if (type === 'device') {
+                title.innerText = "Об устройстве";
+                content.innerHTML = `<div style="display:flex; flex-direction:column; gap:10px;"><div class="settings-item"><span>Игрок</span> <span style="color:#888;">${playerName}</span></div><div class="settings-item"><span>Версия iOS</span> <span style="color:#888;">18.2 (Симулятор)</span></div><div class="settings-item"><span>Модель</span> <span style="color:#888;">iPhone 16 Pro Max</span></div><div class="settings-item"><span>Процессор</span> <span style="color:#888;">A18 Pro</span></div></div>`;
+            } else if (type === 'wallpaper') {
+                title.innerText = "Обои";
+                content.innerHTML = `<p style="color:#888; margin-bottom:15px; font-size:14px;">Выбери обои</p><div class="wallpaper-grid"><div class="wallpaper-option" style="background: linear-gradient(135deg, #1a0b2e 0%, #4a1942 50%, #14062b 100%);" onclick="setWallpaper('linear-gradient(135deg, #1a0b2e 0%, #4a1942 50%, #14062b 100%)')"></div><div class="wallpaper-option" style="background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);" onclick="setWallpaper('linear-gradient(135deg, #0f2027, #203a43, #2c5364)')"></div><div class="wallpaper-option" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);" onclick="setWallpaper('linear-gradient(135deg, #ff7e5f, #feb47b)')"></div><div class="wallpaper-option" style="background: linear-gradient(135deg, #00b4db, #0083b0);" onclick="setWallpaper('linear-gradient(135deg, #00b4db, #0083b0)')"></div><div class="wallpaper-option" style="background: linear-gradient(135deg, #f12711, #f5af19);" onclick="setWallpaper('linear-gradient(135deg, #f12711, #f5af19)')"></div><div class="wallpaper-option" style="background: linear-gradient(135deg, #8e2de2, #4a00e0);" onclick="setWallpaper('linear-gradient(135deg, #8e2de2, #4a00e0)')"></div></div>`;
+            }
+        }
+
+        function setWallpaper(bg) { document.getElementById('device').style.background = bg; localStorage.setItem('techtok_wallpaper', bg); alert('Обои изменены!'); }
+        let savedWallpaper = localStorage.getItem('techtok_wallpaper');
+        if(savedWallpaper) document.getElementById('device').style.background = savedWallpaper;
+
+        function closeGenericApp() { document.getElementById('generic-app-screen').classList.remove('active'); }
+        function sendMsg() {
+            const input = document.getElementById('msg-input');
+            if(input.value.trim() !== '') {
+                const hist = document.getElementById('msg-history');
+                hist.innerHTML += `<div class="msg-bubble msg-out">${input.value}</div>`;
+                input.value = ''; hist.scrollTop = hist.scrollHeight;
+            }
+        }
+        function takePhoto() { const cam = document.getElementById('camera-view'); cam.style.background = '#fff'; setTimeout(() => { cam.style.background = '#222'; }, 150); }
+
+        function openAppStore() { document.getElementById('appstore-screen').classList.add('active'); }
+        function closeAppStore() { document.getElementById('appstore-screen').classList.remove('active'); }
+
+        // --- FLAPPY BIRD ---
+        let flappyInterval;
+        let birdY, velocity, pipes, score, isGameOver;
+        const canvas = document.getElementById('flappyCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function playFlappy() {
+            document.getElementById('flappy-screen').classList.add('active');
+            resetFlappy();
+        }
+        function closeFlappy() {
+            document.getElementById('flappy-screen').classList.remove('active');
+            clearInterval(flappyInterval);
+        }
+        function resetFlappy() {
+            birdY = 240; velocity = 0; pipes = []; score = 0; isGameOver = false;
+            document.getElementById('gameOverlay').classList.remove('active');
+            if(flappyInterval) clearInterval(flappyInterval);
+            flappyInterval = setInterval(updateFlappy, 1000/60);
+        }
+        function updateFlappy() {
+            if(isGameOver) return;
+            velocity += 0.5;
+            birdY += velocity;
+            if(birdY > 460 || birdY < 0) gameOverFlappy();
+            if(pipes.length === 0 || pipes[pipes.length-1].x < 200) {
+                let gap = 120;
+                let topPipeHeight = Math.random() * (canvas.height - gap - 100) + 50;
+                pipes.push({x: canvas.width, top: topPipeHeight, bottom: canvas.height - topPipeHeight - gap, passed: false});
+            }
+            pipes.forEach(p => {
+                p.x -= 2;
+                if(p.x < 40 && p.x > 10 && (birdY < p.top || birdY > canvas.height - p.bottom)) gameOverFlappy();
+                if(p.x < 40 && p.x > 10 && !p.passed) { p.passed = true; score++; }
+            });
+            pipes = pipes.filter(p => p.x > -50);
+            drawFlappy();
+        }
+        function drawFlappy() {
+            ctx.fillStyle = '#70c5ce'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffdf6b'; ctx.fillRect(50, birdY, 24, 18);
+            ctx.fillStyle = '#34c759';
+            pipes.forEach(p => { ctx.fillRect(p.x, 0, 40, p.top); ctx.fillRect(p.x, canvas.height - p.bottom, 40, p.bottom); });
+            ctx.fillStyle = '#fff'; ctx.font = '24px Arial'; ctx.fillText('Счёт: ' + score, 10, 30);
+        }
+        function gameOverFlappy() {
+            isGameOver = true;
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('gameOverlay').classList.add('active');
+        }
+        document.getElementById('flappy-screen').addEventListener('touchstart', (e) => { if(!isGameOver) velocity = -7; });
+        document.getElementById('flappy-screen').addEventListener('mousedown', (e) => { if(!isGameOver) velocity = -7; });
+
+        // --- ТЕЧТОК ИГРА ---
+        function openTechtok() { document.getElementById('techtok-screen').classList.add('active'); render(); }
+        function closeTechtok() { document.getElementById('techtok-screen').classList.remove('active'); }
+
+        // ГЕНЕРАТОР 200 ТЕЛЕФОНОВ
+        const PHONES_DB = [];
+        const BRANDS = ["Samsung", "iPhone", "Xiaomi", "Google", "Sony", "Honor", "Motorola", "Nothing", "POCO", "Realme"];
+        const COLOR_PALETTE = ["#333", "#a9b2a6", "#4a6ee0", "#2e8b57", "#c5a059", "#b22222", "#4b6c8f", "#800080", "#000000", "#f5f5dc", "#708090", "#555"];
+        const CAM_TYPES = ["single", "dual", "triple", "vertical"];
+
+        let idCounter = 1;
+        for (let i = 0; i < 20; i++) {
+            BRANDS.forEach(brand => {
+                // Определяем класс и цену в зависимости от бренда и случайности
+                let cl = "budget";
+                let basePrice = 2000 + Math.random() * 4000;
+                
+                if (brand === "iPhone" || brand === "Samsung" || brand === "Google") {
+                    cl = "flagship";
+                    basePrice = 30000 + Math.random() * 50000;
+                } else if (brand === "Xiaomi" || brand === "Sony" || brand === "Nothing") {
+                    cl = "mid";
+                    basePrice = 10000 + Math.random() * 15000;
+                }
+
+                let modelName = `${brand} ${Math.floor(Math.random()*90+10)} ${Math.random() > 0.5 ? 'Pro' : 'Lite'}`;
+                
+                PHONES_DB.push({
+                    id: idCounter++,
+                    model: modelName,
+                    class: cl,
+                    basePrice: Math.floor(basePrice),
+                    color: COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)],
+                    cam: CAM_TYPES[Math.floor(Math.random() * CAM_TYPES.length)]
+                });
+            });
+        }
+
+        const STATES = [ { name: "убитый", mult: 0.3, repair: 1000 }, { name: "треснул", mult: 0.5, repair: 800 }, { name: "норм", mult: 0.8, repair: 300 }, { name: "идеал", mult: 1.2, repair: 0 } ];
+        let game = null; let gameLoop;
 
         function load() {
-            let s = localStorage.getItem('techtok_trade_v2'); 
-            if (s) { try { game = JSON.parse(s); } catch(e) {} }
-            if (game.tab === 'chat' && !game.currentClient) spawnClient();
+            let s = localStorage.getItem('techtok_ios18_final'); 
+            if (s) { try { game = JSON.parse(s); } catch(e) { game = null; } }
+            if (!game) {
+                game = { money: 10000, dayStartMoney: 10000, day: 1, timeSeconds: 8 * 60, tab: 'market', chat: [], currentClient: null, inventory: [], marketFilter: 'all', offerValue: 0 };
+                spawnClient();
+            }
             startTimeLoop(); render();
         }
-        function save() { localStorage.setItem('techtok_trade_v2', JSON.stringify(game)); }
-
+        function save() { localStorage.setItem('techtok_ios18_final', JSON.stringify(game)); }
         function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.className = 'toast show' + (isError ? ' error' : '');
+            const t = document.getElementById('toast'); t.innerText = msg; t.className = 'toast show' + (isError ? ' error' : '');
             setTimeout(() => { t.className = 'toast'; }, 2500);
         }
-
-        function exportSave() {
-            const dataStr = btoa(encodeURIComponent(JSON.stringify(game)));
-            navigator.clipboard.writeText(dataStr).then(() => showToast("Скопировано! 📋")).catch(() => prompt("Код:", dataStr));
-        }
-        function importSave() {
-            const code = prompt("Вставь код:");
-            if (!code) return;
-            try {
-                const decoded = JSON.parse(decodeURIComponent(atob(code)));
-                if (decoded.money !== undefined) { game = decoded; game.offerValue = 0; save(); render(); showToast("Загружено! 🎉"); }
-                else showToast("Неверный код!", true);
-            } catch(e) { showToast("Ошибка!", true); }
-        }
-
         function startTimeLoop() {
             if (gameLoop) clearInterval(gameLoop);
             gameLoop = setInterval(() => {
+                if(!game) return;
                 game.timeSeconds++;
                 if (game.timeSeconds >= 1440) endDay(); else updateClockUI();
             }, 5000);
         }
-
         function updateClockUI() {
+            if(!game) return;
             const hours = Math.floor(game.timeSeconds / 60), mins = game.timeSeconds % 60;
             document.getElementById('ui-clock').innerText = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
             document.getElementById('ui-day').innerText = game.day;
+            document.getElementById('lock-balance').innerText = game.money.toLocaleString('ru-RU') + ' ₽';
         }
-
         function endDay() {
-            clearInterval(gameLoop);
-            const profit = game.money - game.dayStartMoney;
-            document.getElementById('modal-day-num').innerText = game.day;
-            document.getElementById('modal-start-money').innerText = game.dayStartMoney.toLocaleString('ru-RU');
-            document.getElementById('modal-end-money').innerText = game.money.toLocaleString('ru-RU');
-            const pEl = document.getElementById('modal-profit');
-            pEl.innerText = (profit >= 0 ? '+' : '') + profit.toLocaleString('ru-RU') + '₽';
-            pEl.style.color = profit >= 0 ? '#45f3ff' : '#ff6b6b';
-            document.getElementById('endDayModal').classList.add('show');
-            save();
-        }
-
-        function closeDayModal() {
-            document.getElementById('endDayModal').classList.remove('show');
+            clearInterval(gameLoop); showToast(`День ${game.day} завершен!`);
             game.day++; game.timeSeconds = 8 * 60; game.dayStartMoney = game.money;
             game.currentClient = null; spawnClient(); startTimeLoop(); save(); render();
         }
-
         function buyNewPhone(phoneId) {
             const phone = PHONES_DB.find(p => p.id === phoneId);
             if (game.money < phone.basePrice) { showToast("Не хватает денег! 💸", true); return; }
             game.money -= phone.basePrice;
-            game.inventory.push({ model: phone.model, class: phone.class, state: "идеал", realPrice: phone.basePrice, buyPrice: phone.basePrice, color: phone.color, cam: phone.cam });
+            game.inventory.push({ model: phone.model, class: phone.class, state: "идеал", realPrice: phone.basePrice, buyPrice: phone.basePrice, color: phone.color, cam: phone.cam, firmware: "stock" });
             showToast(`Куплен ${phone.model}!`); save(); render();
         }
-
         function setFilter(f) { game.marketFilter = f; render(); }
-
         function spawnClient() {
             const phone = PHONES_DB[Math.floor(Math.random() * PHONES_DB.length)];
             const state = STATES[Math.floor(Math.random() * STATES.length)];
             const askPrice = Math.floor(phone.basePrice * state.mult * (0.8 + Math.random() * 0.5)); 
-            game.currentClient = { phone: phone.model, class: phone.class, state: state.name, realPrice: phone.basePrice, askPrice: askPrice, color: phone.color, cam: phone.cam, initialAsk: askPrice };
+            game.currentClient = { phone: phone.model, class: phone.class, state: state.name, realPrice: phone.basePrice, askPrice: askPrice, color: phone.color, cam: phone.cam };
             game.chat = [{ type: 'in', text: `Привет! Продаю ${phone.model}, состояние: ${state.name}. Отдам за ${askPrice}₽` }];
-            
             game.offerValue = Math.floor(askPrice * 0.8);
             save(); render();
         }
-
         function updateOfferText(val) {
             game.offerValue = parseInt(val);
             const el = document.getElementById('offer-amount');
             if(el) el.innerText = `Твое предложение: ${game.offerValue}₽`;
         }
-
         function makeOffer() {
-            const amount = game.offerValue;
-            const ask = game.currentClient.askPrice;
-            const minAcceptable = Math.floor(game.currentClient.initialAsk * 0.55); // Минимальная цена, за которую клиент готов отдать (55% от изначальной)
-
+            const amount = game.offerValue, ask = game.currentClient.askPrice;
             if (game.money < amount) { showToast("Не хватает денег! 💸", true); return; }
-
             if (amount >= ask * 0.8) {
-                // Согласие
                 game.chat.push({ type: 'out', text: `Беру за ${amount}₽. Договорились!` });
                 game.chat.push({ type: 'in', text: `Отлично! Телефон твой.` });
                 game.money -= amount;
-                game.inventory.push({ model: game.currentClient.phone, class: game.currentClient.class, state: game.currentClient.state, realPrice: game.currentClient.realPrice, buyPrice: amount, color: game.currentClient.color, cam: game.currentClient.cam });
+                game.inventory.push({ model: game.currentClient.phone, class: game.currentClient.class, state: game.currentClient.state, realPrice: game.currentClient.realPrice, buyPrice: amount, color: game.currentClient.color, cam: game.currentClient.cam, firmware: "stock" });
                 game.currentClient = null; showToast("Телефон куплен!"); setTimeout(() => spawnClient(), 2000);
-            } 
-            else if (amount >= ask * 0.5) {
-                // Клиент согласен торговаться, но не ниже минимальной
-                let counter = Math.floor((amount + ask) / 2);
-                if (counter < minAcceptable) {
-                    game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
-                    game.chat.push({ type: 'in', text: `Да ты офигел! Я за ${minAcceptable}₽ отдам, и то это грабеж. Другому продам.` });
-                    game.currentClient = null; showToast("Клиент ушел 😡", true); setTimeout(() => spawnClient(), 2000);
-                } else {
-                    game.currentClient.askPrice = counter;
-                    game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
-                    game.chat.push({ type: 'in', text: `Не, это дешево. Давай за ${counter}₽, и по рукам.` });
-                    game.offerValue = Math.floor(counter * 0.9);
-                }
-            } 
-            else {
-                // Слишком наглое предложение
+            } else if (amount >= ask * 0.5) {
+                const counter = Math.floor((amount + ask) / 2);
+                game.currentClient.askPrice = counter;
+                game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
+                game.chat.push({ type: 'in', text: `Не, это дешево. Давай за ${counter}₽, и по рукам.` });
+                game.offerValue = Math.floor(counter * 0.9);
+            } else {
                 game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
                 game.chat.push({ type: 'in', text: `Ты че, издеваешься? За такие деньги только корпус. Не продам.` });
                 game.currentClient = null; showToast("Клиент ушел 😡", true); setTimeout(() => spawnClient(), 2000);
             }
             save(); render();
         }
-
         function skipClient() {
             game.chat.push({ type: 'out', text: `Извини, дорого для меня.` });
             game.chat.push({ type: 'in', text: `Ладно, бывай.` });
             game.currentClient = null; setTimeout(() => spawnClient(), 1500); save(); render();
         }
-
         function repairItem(index) {
             let item = game.inventory[index];
             let stateObj = STATES.find(s => s.name === item.state);
             let nextStateIdx = STATES.indexOf(stateObj) + 1;
             if (nextStateIdx >= STATES.length) return;
             let nextState = STATES[nextStateIdx], repairCost = stateObj.repair;
+            if(item.firmware === "custom") repairCost = Math.floor(repairCost * 0.5);
             if (game.money < repairCost) { showToast("Не хватает на ремонт! 🔧", true); return; }
             game.money -= repairCost; item.state = nextState.name;
             showToast(`Починено до "${nextState.name}"!`); save(); render();
         }
-
+        function changeFirmware(index) {
+            let item = game.inventory[index];
+            if(item.firmware === "stock") { item.firmware = "custom"; showToast("Кастомная прошивка (ремонт -50%, цена -20%)"); } 
+            else { item.firmware = "stock"; showToast("Стоковая прошивка (цена +20%)"); }
+            save(); render();
+        }
         function sellItem(index) {
             let item = game.inventory[index];
             let stateObj = STATES.find(s => s.name === item.state);
-            let sellPrice = Math.floor(item.realPrice * stateObj.mult * (0.9 + Math.random() * 0.3));
+            let baseSell = item.realPrice * stateObj.mult * (0.9 + Math.random() * 0.3);
+            if(item.firmware === "stock") baseSell = baseSell * 1.2; else baseSell = baseSell * 0.8;
+            let sellPrice = Math.floor(baseSell);
             game.money += sellPrice; game.inventory.splice(index, 1);
             showToast(`Продал за ${sellPrice}₽! 💰`); save(); render();
         }
-
         function switchTab(tab) {
             game.tab = tab;
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if (tab === 'market') document.querySelectorAll('.nav-btn')[0].classList.add('active');
-            if (tab === 'chat') document.querySelectorAll('.nav-btn')[1].classList.add('active');
-            if (tab === 'inventory') document.querySelectorAll('.nav-btn')[2].classList.add('active');
-            if (tab === 'profile') document.querySelectorAll('.nav-btn')[3].classList.add('active');
+            document.querySelectorAll('.game-nav-btn').forEach(b => b.classList.remove('active'));
+            if (tab === 'market') document.querySelectorAll('.game-nav-btn')[0].classList.add('active');
+            if (tab === 'chat') document.querySelectorAll('.game-nav-btn')[1].classList.add('active');
+            if (tab === 'inventory') document.querySelectorAll('.game-nav-btn')[2].classList.add('active');
+            if (tab === 'profile') document.querySelectorAll('.game-nav-btn')[3].classList.add('active');
             if (tab === 'chat' && !game.currentClient) spawnClient();
             render();
         }
-
         function getBadge(classType) {
             if (classType === 'budget') return '<span class="badge budget">Бюджет</span>';
             if (classType === 'mid') return '<span class="badge mid">Средний</span>';
             if (classType === 'flagship') return '<span class="badge flagship">Флагман</span>';
             return '';
         }
-
         function drawPhone(color, camType) {
             return `<div class="phone-body cam-${camType}" style="border-color: ${color}; background: ${color}22;"></div>`;
         }
-
+        function activatePromo() {
+            const input = document.getElementById('promo-input');
+            if(!input) return;
+            const code = input.value.toUpperCase().trim();
+            if(!code) return;
+            let used = JSON.parse(localStorage.getItem('techtok_used_promos') || '[]');
+            if (used.includes(code)) { showToast("Этот промокод уже использован!", true); return; }
+            if (code === 'TECHTOK') { game.money += 5000; showToast("+5000₽"); }
+            else if (code === 'NEXI') { game.money += 25000; showToast("+25000₽"); }
+            else if (code === 'AETH') { game.money += 100000; showToast("+100000₽"); }
+            else if (code === 'CHEAT') { game.money += 500000; showToast("+500000₽"); }
+            else if (code === 'ADMIN') { game.money += 1000000; showToast("+1000000₽"); }
+            else { showToast("Неверный промокод!", true); return; }
+            used.push(code); localStorage.setItem('techtok_used_promos', JSON.stringify(used));
+            input.value = ''; save(); render();
+        }
         function render() {
+            if(!game) return;
             document.getElementById('ui-money').innerText = `💰 ${game.money.toLocaleString('ru-RU')}₽`;
             updateClockUI();
             const content = document.getElementById('ui-content');
-            content.className = 'content'; 
             content.innerHTML = '';
-
             if (game.tab === 'market') {
-                content.innerHTML += `
-                    <div class="filters">
-                        <button class="filter-btn ${game.marketFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">Все</button>
-                        <button class="filter-btn ${game.marketFilter === 'budget' ? 'active' : ''}" onclick="setFilter('budget')">Бюджет</button>
-                        <button class="filter-btn ${game.marketFilter === 'mid' ? 'active' : ''}" onclick="setFilter('mid')">Средние</button>
-                        <button class="filter-btn ${game.marketFilter === 'flagship' ? 'active' : ''}" onclick="setFilter('flagship')">Флагманы</button>
-                    </div>
-                    <div class="grid">
-                `;
-                PHONES_DB.forEach(phone => {
-                    if (game.marketFilter !== 'all' && phone.class !== game.marketFilter) return;
-                    content.innerHTML += `
-                        <div class="card">
-                            <div class="card-img-placeholder">${drawPhone(phone.color, phone.cam)}</div>
-                            <div class="card-header">
-                                <div class="card-title">${phone.model}</div>
-                                ${getBadge(phone.class)}
-                            </div>
-                            <div class="card-price">${phone.basePrice.toLocaleString('ru-RU')} ₽</div>
-                            <div class="card-buttons">
-                                <button class="btn" onclick="buyNewPhone(${phone.id})">Купить</button>
-                            </div>
-                        </div>
-                    `;
+                content.innerHTML += `<div class="filters"><button class="filter-btn ${game.marketFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">Все</button><button class="filter-btn ${game.marketFilter === 'budget' ? 'active' : ''}" onclick="setFilter('budget')">Бюджет</button><button class="filter-btn ${game.marketFilter === 'mid' ? 'active' : ''}" onclick="setFilter('mid')">Средние</button><button class="filter-btn ${game.marketFilter === 'flagship' ? 'active' : ''}" onclick="setFilter('flagship')">Флагманы</button></div><div class="grid">`;
+                let filteredPhones = PHONES_DB;
+                if (game.marketFilter !== 'all') filteredPhones = PHONES_DB.filter(p => p.class === game.marketFilter);
+                
+                filteredPhones.forEach(phone => {
+                    content.innerHTML += `<div class="card"><div class="card-img-placeholder">${drawPhone(phone.color, phone.cam)}</div><div class="card-header"><div class="card-title">${phone.model}</div>${getBadge(phone.class)}</div><div class="card-price">${phone.basePrice.toLocaleString('ru-RU')} ₽</div><div class="card-buttons"><button class="btn" onclick="buyNewPhone(${phone.id})">Купить</button></div></div>`;
                 });
                 content.innerHTML += `</div>`;
-            } 
-            else if (game.tab === 'chat') {
+            } else if (game.tab === 'chat') {
                 content.innerHTML += `<div class="chat-box">`;
-                game.chat.forEach(msg => {
-                    content.innerHTML += `<div class="msg ${msg.type}">${msg.text}</div>`;
-                });
+                game.chat.forEach(msg => { content.innerHTML += `<div class="msg ${msg.type}">${msg.text}</div>`; });
                 content.innerHTML += `</div>`;
-
                 if (game.currentClient) {
                     const ask = game.currentClient.askPrice;
-                    const minOffer = Math.floor(ask * 0.4);
-                    const maxOffer = ask;
-
+                    const minOffer = Math.floor(ask * 0.4), maxOffer = ask;
                     let currentVal = game.offerValue;
                     if (currentVal < minOffer) currentVal = minOffer;
                     if (currentVal > maxOffer) currentVal = maxOffer;
-
-                    content.innerHTML += `
-                        <div class="actions">
-                            <div class="offer-slider-container">
-                                <span id="offer-amount">Твое предложение: ${currentVal}₽</span>
-                                <input type="range" min="${minOffer}" max="${maxOffer}" value="${currentVal}" oninput="updateOfferText(this.value)">
-                            </div>
-                            <button class="btn-act success" onclick="makeOffer()">Сделать предложение</button>
-                            <button class="btn-act gray" onclick="skipClient()">Послать</button>
-                        </div>
-                    `;
+                    content.innerHTML += `<div class="actions"><div class="offer-slider-container"><span id="offer-amount">Твое предложение: ${currentVal}₽</span><input type="range" min="${minOffer}" max="${maxOffer}" value="${currentVal}" oninput="updateOfferText(this.value)"></div><button class="btn-act success" onclick="makeOffer()">Сделать предложение</button><button class="btn-act gray" onclick="skipClient()">Послать</button></div>`;
                 }
-            } 
-            else if (game.tab === 'inventory') {
+            } else if (game.tab === 'inventory') {
                 if (game.inventory.length === 0) content.innerHTML = '<div class="empty">Склад пуст.</div>';
                 content.innerHTML += `<div class="grid">`;
                 game.inventory.forEach((item, i) => {
@@ -475,30 +824,48 @@
                     let nextIdx = STATES.indexOf(stObj) + 1;
                     let canRepair = nextIdx < STATES.length;
                     let repairCost = canRepair ? stObj.repair : 0;
-                    let sellPrice = Math.floor(item.realPrice * stObj.mult * 1.0);
+                    if(item.firmware === "custom") repairCost = Math.floor(repairCost * 0.5);
+                    
+                    let baseSell = item.realPrice * stObj.mult;
+                    if(item.firmware === "stock") baseSell *= 1.2; else baseSell *= 0.8;
+                    let sellPrice = Math.floor(baseSell);
+                    let fwName = item.firmware === 'stock' ? 'Сток' : 'Кастом';
 
                     content.innerHTML += `
                         <div class="card">
                             <div class="card-img-placeholder">${drawPhone(item.color, item.cam)}</div>
-                            <div class="card-header">
-                                <div class="card-title">${item.model}</div>
-                                <div class="card-sub">${item.state}</div>
-                                ${getBadge(item.class)}
-                            </div>
+                            <div class="card-header"><div class="card-title">${item.model}</div><div class="card-sub">${item.state} • ${fwName}</div>${getBadge(item.class)}</div>
                             <div class="card-sub" style="color:#45f3ff; font-weight:800;">Сбыт: ~${sellPrice}₽</div>
                             <div class="card-buttons">
                                 ${canRepair ? `<button class="btn btn-repair" onclick="repairItem(${i})">Ремонт (${repairCost}₽)</button>` : `<button class="btn" disabled>Идеал</button>`}
+                                <button class="btn btn-firmware" onclick="changeFirmware(${i})">Прошивка</button>
                                 <button class="btn btn-sell" onclick="sellItem(${i})">Продать</button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
                 content.innerHTML += `</div>`;
-            }
-            else if (game.tab === 'profile') {
+            } else if (game.tab === 'profile') {
                 content.innerHTML = `
-                    <div style="text-align: center; margin-top: 20px;">
-                        <div style="font-size: 50px; margin-bottom: 10px;">👤</div>
-                        <h2 style="color: #fff; margin-bottom: 5px;">Твой Профиль</h2>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <div style="font-size: 50px; margin-bottom: 5px;">👤</div>
+                        <h2 style="color: #fff; margin-bottom: 5px;">${playerName}</h2>
                         <p style="color: #888; margin-bottom: 20px;">Перекуп со стажем</p>
-                        <div style="background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35; margin-bottom: 20px;
+                        <div style="background: #1a1a20; padding: 15px; border: 1px solid #2a2a35; margin-bottom: 20px; text-align: left;">
+                            <p style="margin-bottom: 5px; color: #ccc;">День: <b style="color: #fff;">${game.day}</b></p>
+                            <p style="margin-bottom: 5px; color: #ccc;">Баланс: <b style="color: #ffdf6b;">${game.money.toLocaleString('ru-RU')}₽</b></p>
+                            <p style="color: #ccc;">Телефонов на складе: <b style="color: #fff;">${game.inventory.length}</b></p>
+                        </div>
+                        <div class="promo-area">
+                            <h3>🎁 Ввести промокод</h3>
+                            <input type="text" class="promo-input" id="promo-input" placeholder="НАПРИМЕР: AETH">
+                            <button class="promo-btn" onclick="activatePromo()">Активировать</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        if(playerName) { load(); }
+    </script>
+</body>
+</html>
