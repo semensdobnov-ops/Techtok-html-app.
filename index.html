@@ -11,20 +11,21 @@
         
         body { background: #000; height: 100vh; height: 100dvh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
 
+        /* Возвращаем красивые скругленные края */
         .device {
             width: 100%; height: 100%; max-width: 430px; max-height: 932px;
             background: linear-gradient(135deg, #1a0b2e 0%, #4a1942 50%, #14062b 100%);
             position: relative; overflow: hidden; 
-            border: 4px solid #333; 
+            border-radius: 45px; 
             box-shadow: 0 0 50px rgba(0,0,0,0.9);
             transition: background 0.5s ease;
         }
 
-        #register-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; }
+        #register-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; border-radius: 45px;}
         #register-screen h1 { color: #0a84ff; margin-bottom: 10px; font-size: 28px; text-align: center;}
         #register-screen p { color: #888; margin-bottom: 30px; text-align: center; font-size: 14px;}
-        .reg-input { width: 100%; padding: 15px; border: 1px solid #333; background: #1c1c1e; color: white; font-size: 16px; margin-bottom: 20px; text-align: center;}
-        .reg-btn { width: 100%; padding: 15px; background: #0a84ff; color: white; font-size: 16px; font-weight: bold; border: none; cursor: pointer;}
+        .reg-input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #1c1c1e; color: white; font-size: 16px; margin-bottom: 20px; text-align: center;}
+        .reg-btn { width: 100%; padding: 15px; border-radius: 12px; background: #0a84ff; color: white; font-size: 16px; font-weight: bold; border: none; cursor: pointer;}
 
         .dynamic-island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: #000; border-radius: 20px; z-index: 1000; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: flex; justify-content: center; align-items: center; color: white; overflow: hidden; cursor: pointer; }
         .dynamic-island.expanded { width: 90%; height: 80px; border-radius: 30px; padding: 15px; justify-content: space-between;}
@@ -39,7 +40,7 @@
         .time-lock p { font-size: 22px; font-weight: 500; margin-top: 10px;}
 
         .widgets-lock { width: 100%; display: flex; gap: 12px; justify-content: center; margin-top: 20px; pointer-events: none;}
-        .widget { padding: 15px; color: white; flex: 1; text-align: left; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1);}
+        .widget { padding: 15px; border-radius: 20px; color: white; flex: 1; text-align: left; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1);}
         .widget h4 { font-size: 11px; text-transform: uppercase; opacity: 0.8; margin-bottom: 5px;}
         .widget p { font-size: 15px; font-weight: 600;}
 
@@ -53,7 +54,7 @@
         .app-icon { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.1s; }
         .app-icon:active { transform: scale(0.85); opacity: 0.8; }
         
-        .icon-box { width: 64px; height: 64px; display: flex; justify-content: center; align-items: center; font-size: 32px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: #fff; }
+        .icon-box { width: 64px; height: 64px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 32px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: #fff; }
         .app-icon span { color: white; font-size: 12px; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
         
         .ic-msg { background: linear-gradient(180deg, #5bf075 0%, #1cb332 100%); }
@@ -65,12 +66,12 @@
         .ic-store { background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); }
         .ic-music { background: linear-gradient(180deg, #ff5e7e 0%, #ff2d55 100%); }
 
-        .dock { position: absolute; bottom: 25px; left: 15px; right: 15px; padding: 12px 15px; display: flex; justify-content: space-around; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .dock .icon-box { width: 60px; height: 60px; font-size: 30px; box-shadow: none; }
+        .dock { position: absolute; bottom: 25px; left: 15px; right: 15px; padding: 12px 15px; border-radius: 35px; display: flex; justify-content: space-around; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .dock .icon-box { width: 60px; height: 60px; border-radius: 15px; font-size: 30px; box-shadow: none; }
 
-        .app-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; }
+        .app-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); display: flex; flex-direction: column; border-radius: 45px; overflow: hidden;}
         .app-screen.active { transform: translateY(0); }
-        .app-header { padding: 60px 20px 15px; display: flex; align-items: center; gap: 10px; background: #1c1c1e; color: #fff; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #333;}
+        .app-header { padding: 60px 20px 15px; display: flex; align-items: center; gap: 10px; background: #1c1c1e; color: #fff; position: sticky; top: 0; z-index: 10; }
         .back-btn { font-size: 20px; color: #0a84ff; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px;}
         .app-header h2 { font-size: 18px; font-weight: 600; margin-left: auto; margin-right: auto; transform: translateX(-20px);}
         .app-content { flex: 1; overflow-y: auto; padding: 20px; background: #000; color: #fff; }
@@ -82,7 +83,7 @@
         .track-info h4 { font-size: 15px; color: #fff; margin-bottom: 3px;}
         .track-info p { font-size: 12px; color: #888;}
         
-        .player-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(30,30,30,0.95); backdrop-filter: blur(20px); padding: 15px 20px; border-top: 1px solid #333; z-index: 50; display: flex; flex-direction: column; gap: 10px;}
+        .player-bar { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(30,30,30,0.95); backdrop-filter: blur(20px); padding: 15px 20px; border-top: 1px solid #333; z-index: 50; display: flex; flex-direction: column; gap: 10px; border-radius: 0 0 45px 45px;}
         .player-info { display: flex; justify-content: space-between; align-items: center;}
         .player-title { font-size: 14px; font-weight: bold; color: #fff;}
         .player-controls { display: flex; justify-content: space-around; align-items: center; font-size: 24px; color: #fff;}
@@ -92,32 +93,32 @@
         .time-stamps { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-top: 5px;}
 
         /* Стили контента */
-        .msg-bubble { max-width: 80%; padding: 10px 15px; margin-bottom: 10px; font-size: 14px; border: 1px solid #333;}
-        .msg-in { background: #26262a; align-self: flex-start; border-radius: 0 15px 15px 15px; }
-        .msg-out { background: #0a84ff; align-self: flex-end; border-radius: 15px 0 15px 15px; }
+        .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 20px; margin-bottom: 10px; font-size: 14px; }
+        .msg-in { background: #26262a; align-self: flex-start; border-radius: 0 20px 20px 20px; }
+        .msg-out { background: #0a84ff; align-self: flex-end; border-radius: 20px 0 20px 20px; }
         .chat-input-area { display: flex; gap: 10px; margin-top: 20px; }
-        .chat-input { flex: 1; padding: 12px; border: 1px solid #333; background: #1c1c1e; color: white; outline: none; }
-        .chat-send { background: #0a84ff; color: white; border: none; width: 40px; height: 40px; font-size: 18px; }
+        .chat-input { flex: 1; padding: 12px; border-radius: 20px; border: none; background: #1c1c1e; color: white; outline: none; }
+        .chat-send { background: #0a84ff; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; }
         
-        .camera-view { background: #222; height: 60vh; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 2px solid #333; margin-bottom: 20px; transition: background 0.1s;}
-        .shutter-btn { width: 70px; height: 70px; background: #fff; border: 5px solid #ddd; margin: 0 auto; display: block; cursor: pointer; border-radius: 50%;}
+        .camera-view { background: #222; height: 60vh; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 2px solid #333; margin-bottom: 20px; transition: background 0.1s;}
+        .shutter-btn { width: 70px; height: 70px; border-radius: 50%; background: #fff; border: 5px solid #ddd; margin: 0 auto; display: block; cursor: pointer;}
         .shutter-btn:active { background: #aaa; }
 
         .photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        .photo-item { aspect-ratio: 1; }
+        .photo-item { aspect-ratio: 1; border-radius: 5px; }
 
         .settings-list { display: flex; flex-direction: column; gap: 10px; }
-        .settings-item { background: #1c1c1e; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; cursor: pointer; border-bottom: 1px solid #333;}
-        .toggle { width: 50px; height: 30px; background: #333; position: relative; transition: 0.3s; cursor: pointer; border-radius: 15px;}
+        .settings-item { background: #1c1c1e; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; cursor: pointer; }
+        .toggle { width: 50px; height: 30px; background: #333; border-radius: 15px; position: relative; transition: 0.3s; cursor: pointer; }
         .toggle.on { background: #34c759; }
         .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: #fff; border-radius: 50%; transition: 0.3s; }
         .toggle.on::after { left: 23px; }
 
         .wallpaper-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;}
-        .wallpaper-option { height: 100px; cursor: pointer; border: 2px solid transparent; }
+        .wallpaper-option { height: 100px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; }
         .wallpaper-option:active { border-color: #0a84ff; }
 
-        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #1c1c1e; margin-bottom: 10px; border: 1px solid #333;}
+        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #1c1c1e; border-radius: 12px; margin-bottom: 10px; }
         .leaderboard-item.me { background: rgba(10, 132, 255, 0.2); border: 1px solid #0a84ff; }
         .rank { font-size: 18px; font-weight: 800; color: #ffdf6b; width: 30px; }
         .p-name { flex: 1; font-weight: 600; margin-left: 10px; }
@@ -127,70 +128,70 @@
         .game-top-bar { background: #1a1a20; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2a35; flex-shrink: 0; }
         .game-money { font-size: 18px; font-weight: 800; color: #fff; }
         .game-time-box { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-        .game-day { font-size: 12px; font-weight: 800; color: #ffdf6b; background: rgba(255,223,107,0.1); padding: 2px 6px; }
+        .game-day { font-size: 12px; font-weight: 800; color: #ffdf6b; background: rgba(255,223,107,0.1); padding: 2px 6px; border-radius: 4px; }
         .game-clock { font-size: 14px; font-weight: 600; color: #45f3ff; font-variant-numeric: tabular-nums; }
         
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; }
         .chat-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-        .msg { max-width: 85%; padding: 10px 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; border: 1px solid #333;}
-        .msg.in { background: #23232d; align-self: flex-start; border-radius: 0 10px 10px 10px; }
-        .msg.out { background: #4a6ee0; color: #fff; align-self: flex-end; border-radius: 10px 0 10px 10px;}
-        .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; background: #1a1a20; padding: 15px; border: 1px solid #2a2a35;}
+        .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; word-wrap: break-word; }
+        .msg.in { background: #23232d; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg.out { background: #4a6ee0; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35;}
         .offer-slider-container { display: flex; flex-direction: column; gap: 5px; width: 100%; align-items: center; }
         .offer-slider-container span { font-size: 16px; font-weight: 800; color: #ffdf6b; }
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; height: 30px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; background: #fff; cursor: pointer; margin-top: -9px; border-radius: 50%;}
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #333; }
-        .btn-act { background: #23232d; color: #fff; border: 1px solid #4a6ee0; padding: 12px; font-size: 14px; font-weight: 600; width: 100%; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #fff; cursor: pointer; margin-top: -9px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #333; border-radius: 3px; }
+        .btn-act { background: #23232d; color: #fff; border: 1px solid #4a6ee0; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; width: 100%; }
         .btn-act:active { background: #4a6ee0; }
         .btn-act.success { background: #4a6ee0; border: none; }
         .btn-act.gray { border-color: #333; color: #888; }
 
-        .card { background: #1a1a20; padding: 10px; display: flex; flex-direction: column; border: 1px solid #2a2a35; width: 100%; min-width: 0; }
-        .card-img-placeholder { width: 100%; height: 90px; background: #111115; display: flex; align-items: center; justify-content: center; border: 1px solid #222; position: relative; margin-bottom: 8px; }
+        .card { background: #1a1a20; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; border: 1px solid #2a2a35; width: 100%; min-width: 0; }
+        .card-img-placeholder { width: 100%; height: 90px; background: #111115; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #222; position: relative; margin-bottom: 8px; }
         
-        .phone-body { width: 32px; height: 64px; border: 2px solid; position: relative; border-radius: 4px;}
-        .cam-single::after { content: ''; position: absolute; top: 4px; left: 4px; width: 8px; height: 8px; border: 1px solid #333; background: #111; border-radius: 50%;}
-        .cam-dual::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 14px; border: 1px solid #333; background: #111; }
-        .cam-triple::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; border: 1px solid #333; background: #111; border-radius: 50%; box-shadow: 0 12px 0 -2px #111; }
-        .cam-vertical::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 20px; border: 1px solid #333; background: #111; }
+        .phone-body { width: 32px; height: 64px; border: 2px solid; border-radius: 6px; position: relative; }
+        .cam-single::after { content: ''; position: absolute; top: 4px; left: 4px; width: 8px; height: 8px; border: 1px solid #333; border-radius: 50%; background: #111; }
+        .cam-dual::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 14px; border: 1px solid #333; border-radius: 3px; background: #111; }
+        .cam-triple::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; border: 1px solid #333; border-radius: 50%; background: #111; box-shadow: 0 12px 0 -2px #111; }
+        .cam-vertical::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 20px; border: 1px solid #333; border-radius: 3px; background: #111; }
         
         .card-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; min-width: 0; }
         .card-title { font-weight: 800; font-size: 12px; color: #fff; line-height: 1.2; height: 28px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .card-sub { font-size: 10px; color: #888; margin-bottom: 2px;}
-        .badge { font-size: 9px; font-weight: 800; padding: 2px 4px; display: inline-block; margin-top: 2px; width: fit-content; text-transform: uppercase; border: 1px solid transparent;}
-        .badge.budget { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; border-color: #ff6b6b;}
-        .badge.mid { background: rgba(255, 223, 107, 0.15); color: #ffdf6b; border-color: #ffdf6b;}
-        .badge.flagship { background: rgba(69, 243, 255, 0.15); color: #45f3ff; border-color: #45f3ff;}
+        .badge { font-size: 9px; font-weight: 800; padding: 2px 4px; border-radius: 4px; display: inline-block; margin-top: 2px; width: fit-content; text-transform: uppercase; }
+        .badge.budget { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+        .badge.mid { background: rgba(255, 223, 107, 0.15); color: #ffdf6b; }
+        .badge.flagship { background: rgba(69, 243, 255, 0.15); color: #45f3ff; }
         .card-price { font-size: 14px; font-weight: 800; color: #fff; margin-top: auto; }
         .card-buttons { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; width: 100%; }
-        .btn { background: #fff; color: #000; border: none; padding: 8px; font-weight: 800; font-size: 12px; text-align: center; width: 100%; }
+        .btn { background: #fff; color: #000; border: none; padding: 8px; border-radius: 6px; font-weight: 800; font-size: 12px; text-align: center; width: 100%; }
         .btn-repair { background: #ffdf6b; color: #000; }
         .btn-firmware { background: #af52de; color: #fff; }
         .btn-sell { background: #45f3ff; color: #000; }
         .btn:disabled { background: #333; color: #666; }
         
-        .game-nav { background: #1a1a20; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 15px)); display: flex; justify-content: space-around; border-top: 1px solid #2a2a35; flex-shrink: 0; }
+        .game-nav { background: #1a1a20; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 15px)); display: flex; justify-content: space-around; border-top: 1px solid #2a2a35; flex-shrink: 0; border-radius: 0 0 45px 45px;}
         .game-nav-btn { background: transparent; color: #666; border: none; padding: 6px; font-weight: 800; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 25%; }
         .game-nav-btn.active { color: #fff; }
         .game-nav-btn i { font-size: 18px; font-style: normal; }
         .empty { text-align: center; color: #555; margin-top: 50px; font-size: 15px; font-weight: 600; }
         .filters { display: flex; gap: 8px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; width: 100%; }
-        .filter-btn { background: #1a1a20; color: #aaa; border: 1px solid #2a2a35; padding: 6px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .filter-btn { background: #1a1a20; color: #aaa; border: 1px solid #2a2a35; padding: 6px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
         .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
-        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #fff; color: #000; padding: 10px 20px; font-weight: 600; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.3s; z-index: 999; text-align: center; white-space: nowrap; opacity: 0; pointer-events: none; }
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #fff; color: #000; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.3s; z-index: 999; text-align: center; white-space: nowrap; opacity: 0; pointer-events: none; }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.error { background: #ff6b6b; color: #fff; }
 
-        .close-game-btn { position: absolute; top: 90px; right: 15px; z-index: 105; cursor: pointer; width: 35px; height: 35px; background: rgba(255,255,255,0.15); display: flex; justify-content: center; align-items: center; color: white; backdrop-filter: blur(10px); font-weight: bold; }
+        .close-game-btn { position: absolute; top: 90px; right: 15px; z-index: 105; cursor: pointer; width: 35px; height: 35px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; backdrop-filter: blur(10px); font-weight: bold; }
 
-        .promo-area { background: #1a1a20; padding: 20px; border: 1px solid #2a2a35; text-align: center; margin-bottom: 20px;}
+        .promo-area { background: #1a1a20; padding: 20px; border-radius: 12px; border: 1px solid #2a2a35; text-align: center; margin-bottom: 20px;}
         .promo-area h3 { font-size: 16px; margin-bottom: 10px; color: #fff;}
-        .promo-input { width: 100%; padding: 12px; border: 1px solid #333; background: #111; color: #fff; margin-bottom: 10px; text-align: center; font-size: 16px; text-transform: uppercase;}
-        .promo-btn { width: 100%; padding: 12px; background: #34c759; color: #fff; font-weight: bold; border: none; cursor: pointer;}
+        .promo-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #111; color: #fff; margin-bottom: 10px; text-align: center; font-size: 16px; text-transform: uppercase;}
+        .promo-btn { width: 100%; padding: 12px; border-radius: 8px; background: #34c759; color: #fff; font-weight: bold; border: none; cursor: pointer;}
 
-        #flappyCanvas { display: block; margin: 0 auto; background: #70c5ce; border: 2px solid #fff; }
-        .game-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 200;}
+        #flappyCanvas { display: block; margin: 0 auto; background: #70c5ce; border: 2px solid #fff; border-radius: 8px;}
+        .game-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 200; border-radius: 45px;}
         .game-overlay.active { display: flex; }
     </style>
 </head>
@@ -617,7 +618,6 @@
         let idCounter = 1;
         for (let i = 0; i < 20; i++) {
             BRANDS.forEach(brand => {
-                // Определяем класс и цену в зависимости от бренда и случайности
                 let cl = "budget";
                 let basePrice = 2000 + Math.random() * 4000;
                 
@@ -850,7 +850,7 @@
                         <div style="font-size: 50px; margin-bottom: 5px;">👤</div>
                         <h2 style="color: #fff; margin-bottom: 5px;">${playerName}</h2>
                         <p style="color: #888; margin-bottom: 20px;">Перекуп со стажем</p>
-                        <div style="background: #1a1a20; padding: 15px; border: 1px solid #2a2a35; margin-bottom: 20px; text-align: left;">
+                        <div style="background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35; margin-bottom: 20px; text-align: left;">
                             <p style="margin-bottom: 5px; color: #ccc;">День: <b style="color: #fff;">${game.day}</b></p>
                             <p style="margin-bottom: 5px; color: #ccc;">Баланс: <b style="color: #ffdf6b;">${game.money.toLocaleString('ru-RU')}₽</b></p>
                             <p style="color: #ccc;">Телефонов на складе: <b style="color: #fff;">${game.inventory.length}</b></p>
