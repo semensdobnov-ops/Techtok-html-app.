@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Течток: Перекуп PRO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: #0f0f12; 
+            color: #e0e0e0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            height: 100dvh;
+            overflow: hidden; 
+        }
+        
+        .top-bar { 
+            background: #1a1a20; padding: 10px 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #2a2a35; z-index: 10; flex-shrink: 0;
+        }
+        .money { font-size: 18px; font-weight: 800; color: #fff; }
+        
+        .time-box { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+        .day { font-size: 12px; font-weight: 800; color: #ffdf6b; background: rgba(255,223,107,0.1); padding: 2px 6px; border-radius: 4px; }
+        .clock { font-size: 14px; font-weight: 600; color: #45f3ff; font-variant-numeric: tabular-nums; }
+        
+        .content { 
+            flex: 1; overflow-y: auto; padding: 12px; 
+            display: flex; flex-direction: column; gap: 12px; padding-bottom: 30px; 
+        }
+        
+        /* СЕТКА */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, minmax(0, 1fr)); 
+            gap: 10px; 
+            width: 100%;
+        }
+
+        /* ЧАТ (АВИТО) - НОРМАЛЬНАЯ ПРОКРУТКА */
+        .chat-box { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        
+        .msg { 
+            max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 13px; 
+            line-height: 1.4; word-wrap: break-word; animation: fadeIn 0.3s ease;
+        }
+        .msg.in { background: #23232d; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg.out { background: #4a6ee0; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+        
+        .actions { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: auto; }
+        .btn-act { 
+            background: #23232d; color: #fff; border: 1px solid #4a6ee0; 
+            padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; 
+            width: 100%; transition: 0.2s; 
+        }
+        .btn-act:active { background: #4a6ee0; transform: scale(0.98); }
+        .btn-act.success { background: #4a6ee0; border: none; }
+        .btn-act.danger { border-color: #e04a4a; color: #ff6b6b; }
+        .btn-act.gray { border-color: #333; color: #888; }
+
+        /* КАРТОЧКИ */
+        .card { 
+            background: #1a1a20; border-radius: 12px; padding: 10px; 
+            display: flex; flex-direction: column; border: 1px solid #2a2a35; 
+            width: 100%; min-width: 0;
+        }
+        
+        .card-img-placeholder { 
+            width: 100%; height: 90px; background: #111115; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #222; position: relative; margin-bottom: 8px;
+        }
+        
+        /* УНИКАЛЬНЫЕ ЦВЕТА ТЕЛЕФОНОВ */
+        .phone-body {
+            width: 32px; height: 64px; border: 2px solid; border-radius: 6px;
+            position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        
+        .cam-single::after { content: ''; position: absolute; top: 4px; left: 4px; width: 8px; height: 8px; border: 1px solid #333; border-radius: 50%; background: #111; }
+        .cam-dual::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 14px; border: 1px solid #333; border-radius: 3px; background: #111; }
+        .cam-triple::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; border: 1px solid #333; border-radius: 50%; background: #111; box-shadow: 0 12px 0 -2px #111; }
+        .cam-vertical::after { content: ''; position: absolute; top: 4px; left: 4px; width: 6px; height: 20px; border: 1px solid #333; border-radius: 3px; background: #111; }
+
+        .card-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; min-width: 0; }
+        .card-title { 
+            font-weight: 800; font-size: 12px; color: #fff; line-height: 1.2; 
+            height: 28px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
+        .card-sub { font-size: 10px; color: #888; margin-bottom: 2px;}
+        
+        .badge { 
+            font-size: 9px; font-weight: 800; padding: 2px 4px; border-radius: 4px; 
+            display: inline-block; margin-top: 2px; width: fit-content; text-transform: uppercase;
+        }
+        .badge.budget { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+        .badge.mid { background: rgba(255, 223, 107, 0.15); color: #ffdf6b; }
+        .badge.flagship { background: rgba(69, 243, 255, 0.15); color: #45f3ff; }
+        
+        .card-price { font-size: 14px; font-weight: 800; color: #fff; margin-top: auto; }
+        
+        .card-buttons { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; width: 100%; }
+        .btn { 
+            background: #fff; color: #000; border: none; padding: 8px; border-radius: 6px; 
+            font-weight: 800; font-size: 12px; transition: 0.2s; text-align: center; width: 100%;
+        }
+        .btn:active { opacity: 0.8; transform: scale(0.97); }
+        .btn-repair { background: #ffdf6b; color: #000; }
+        .btn-sell { background: #45f3ff; color: #000; }
+        .btn:disabled { background: #333; color: #666; }
+
+        .bottom-nav { 
+            background: #1a1a20; padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 15px)); 
+            display: flex; justify-content: space-around; border-top: 1px solid #2a2a35; flex-shrink: 0;
+        }
+        .nav-btn { 
+            background: transparent; color: #666; border: none; padding: 6px; font-weight: 800; font-size: 11px; 
+            display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.3s; width: 25%;
+        }
+        .nav-btn.active { color: #fff; }
+        .nav-btn i { font-size: 18px; font-style: normal; }
+        
+        .empty { text-align: center; color: #555; margin-top: 50px; font-size: 15px; font-weight: 600; }
+
+        .filters { display: flex; gap: 8px; margin-bottom: 5px; overflow-x: auto; padding-bottom: 5px; width: 100%; }
+        .filter-btn { 
+            background: #1a1a20; color: #aaa; border: 1px solid #2a2a35; 
+            padding: 6px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap;
+        }
+        .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
+
+        /* ВСПЛЫВАШКИ (Тост) - Исправлено, чтобы не перекрывал контент по центру */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #fff; color: #000; padding: 10px 20px; border-radius: 30px;
+            font-weight: 600; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 999;
+            text-align: center; white-space: nowrap; opacity: 0; pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: #ff6b6b; color: #fff; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px);
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .modal {
+            background: #1a1a20; padding: 25px; border-radius: 20px; width: 85%; text-align: center;
+            border: 1px solid #45f3ff; box-shadow: 0 0 30px rgba(69,243,255,0.2);
+            transform: translateY(20px); transition: 0.3s;
+        }
+        .modal-overlay.show .modal { transform: translateY(0); }
+        .modal h2 { color: #45f3ff; margin-bottom: 15px; font-size: 20px; }
+        .modal p { margin-bottom: 10px; font-size: 14px; color: #ccc; }
+        .modal .profit { font-size: 24px; font-weight: 800; color: #fff; margin: 15px 0; }
+        .modal .btn { width: 100%; padding: 12px; margin-top: 15px; background: #45f3ff; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="money" id="ui-money">💰 10 000₽</div>
+        <div class="time-box">
+            <div class="day">День <span id="ui-day">1</span></div>
+            <div class="clock" id="ui-clock">08:00</div>
+        </div>
+    </div>
+
+    <div class="content" id="ui-content"></div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('market')"><i>🏪</i>Маркет</button>
+        <button class="nav-btn" onclick="switchTab('chat')"><i>💬</i>Чаты</button>
+        <button class="nav-btn" onclick="switchTab('inventory')"><i>📦</i>Склад</button>
+        <button class="nav-btn" onclick="switchTab('profile')"><i>👤</i>Профиль</button>
+    </div>
+
+    <div class="toast" id="toast">Текст</div>
+
+    <div class="modal-overlay" id="endDayModal">
+        <div class="modal">
+            <h2>🌙 Конец дня <span id="modal-day-num">1</span></h2>
+            <p>Баланс на утро: <span id="modal-start-money">0</span>₽</p>
+            <p>Баланс на вечер: <span id="modal-end-money">0</span>₽</p>
+            <div class="profit" id="modal-profit">+0₽</div>
+            <button class="btn" onclick="closeDayModal()">Начать новый день</button>
+        </div>
+    </div>
+
+    <script>
+        const PHONES_DB = [
+            { id: 1, model: "Samsung Galaxy A13", class: "budget", basePrice: 3500, color: "#333", cam: "triple" },
+            { id: 2, model: "Samsung Galaxy S23", class: "flagship", basePrice: 30000, color: "#a9b2a6", cam: "triple" },
+            { id: 3, model: "Motorola Moto G75", class: "mid", basePrice: 8000, color: "#4a6ee0", cam: "dual" },
+            { id: 4, model: "Sony Xperia 1 IV", class: "flagship", basePrice: 25000, color: "#2e8b57", cam: "vertical" },
+            { id: 5, model: "Honor X7b", class: "budget", basePrice: 6000, color: "#c5a059", cam: "dual" },
+            { id: 6, model: "Xiaomi Redmi Note 12", class: "mid", basePrice: 9000, color: "#b22222", cam: "triple" },
+            { id: 7, model: "iPhone 13 Pro", class: "flagship", basePrice: 35000, color: "#4b6c8f", cam: "triple" },
+            { id: 8, model: "iPhone 11", class: "mid", basePrice: 15000, color: "#800080", cam: "dual" },
+            { id: 9, model: "POCO X6 Pro", class: "mid", basePrice: 12000, color: "#000000", cam: "triple" },
+            { id: 10, model: "Nothing Phone (1)", class: "mid", basePrice: 14000, color: "#f5f5dc", cam: "dual" },
+            { id: 11, model: "Tecno Pova 6 Pro", class: "budget", basePrice: 7000, color: "#4169e1", cam: "triple" },
+            { id: 12, model: "Infinix Hot 60", class: "budget", basePrice: 4500, color: "#8b4513", cam: "dual" },
+            { id: 13, model: "Google Pixel 8", class: "flagship", basePrice: 32000, color: "#708090", cam: "dual" },
+            { id: 14, model: "Huawei P60 Pro", class: "flagship", basePrice: 28000, color: "#dcdcdc", cam: "triple" },
+            { id: 15, model: "Realme 11 Pro", class: "mid", basePrice: 10000, color: "#ffd700", cam: "dual" }
+        ];
+
+        const STATES = [
+            { name: "убитый", mult: 0.3, repair: 1000 },
+            { name: "треснул", mult: 0.5, repair: 800 },
+            { name: "норм", mult: 0.8, repair: 300 },
+            { name: "идеал", mult: 1.2, repair: 0 }
+        ];
+
+        let game = {
+            money: 10000, dayStartMoney: 10000, day: 1, timeSeconds: 8 * 60, 
+            tab: 'market', chat: [], currentClient: null, inventory: [], marketFilter: 'all'
+        };
+
+        let gameLoop;
+
+        function load() {
+            let s = localStorage.getItem('techtok_v11_fix'); 
+            if (s) { try { game = JSON.parse(s); } catch(e) {} }
+            if (game.tab === 'chat' && !game.currentClient) spawnClient();
+            startTimeLoop(); render();
+        }
+        function save() { localStorage.setItem('techtok_v11_fix', JSON.stringify(game)); }
+
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => { t.className = 'toast'; }, 2500);
+        }
+
+        function exportSave() {
+            const dataStr = btoa(encodeURIComponent(JSON.stringify(game)));
+            navigator.clipboard.writeText(dataStr).then(() => showToast("Скопировано! 📋")).catch(() => prompt("Код:", dataStr));
+        }
+        function importSave() {
+            const code = prompt("Вставь код:");
+            if (!code) return;
+            try {
+                const decoded = JSON.parse(decodeURIComponent(atob(code)));
+                if (decoded.money !== undefined) { game = decoded; save(); render(); showToast("Загружено! 🎉"); }
+                else showToast("Неверный код!", true);
+            } catch(e) { showToast("Ошибка!", true); }
+        }
+
+        function startTimeLoop() {
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(() => {
+                game.timeSeconds++;
+                if (game.timeSeconds >= 1440) endDay(); else updateClockUI();
+            }, 5000);
+        }
+
+        function updateClockUI() {
+            const hours = Math.floor(game.timeSeconds / 60), mins = game.timeSeconds % 60;
+            document.getElementById('ui-clock').innerText = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+            document.getElementById('ui-day').innerText = game.day;
+        }
+
+        function endDay() {
+            clearInterval(gameLoop);
+            const profit = game.money - game.dayStartMoney;
+            document.getElementById('modal-day-num').innerText = game.day;
+            document.getElementById('modal-start-money').innerText = game.dayStartMoney.toLocaleString('ru-RU');
+            document.getElementById('modal-end-money').innerText = game.money.toLocaleString('ru-RU');
+            const pEl = document.getElementById('modal-profit');
+            pEl.innerText = (profit >= 0 ? '+' : '') + profit.toLocaleString('ru-RU') + '₽';
+            pEl.style.color = profit >= 0 ? '#45f3ff' : '#ff6b6b';
+            document.getElementById('endDayModal').classList.add('show');
+            save();
+        }
+
+        function closeDayModal() {
+            document.getElementById('endDayModal').classList.remove('show');
+            game.day++; game.timeSeconds = 8 * 60; game.dayStartMoney = game.money;
+            game.currentClient = null; spawnClient(); startTimeLoop(); save(); render();
+        }
+
+        function buyNewPhone(phoneId) {
+            const phone = PHONES_DB.find(p => p.id === phoneId);
+            if (game.money < phone.basePrice) { showToast("Не хватает денег! 💸", true); return; }
+            game.money -= phone.basePrice;
+            game.inventory.push({ model: phone.model, class: phone.class, state: "идеал", realPrice: phone.basePrice, buyPrice: phone.basePrice, color: phone.color, cam: phone.cam });
+            showToast(`Куплен ${phone.model}!`); save(); render();
+        }
+
+        function setFilter(f) { game.marketFilter = f; render(); }
+
+        function spawnClient() {
+            const phone = PHONES_DB[Math.floor(Math.random() * PHONES_DB.length)];
+            const state = STATES[Math.floor(Math.random() * STATES.length)];
+            const askPrice = Math.floor(phone.basePrice * state.mult * (0.8 + Math.random() * 0.5)); 
+            game.currentClient = { phone: phone.model, class: phone.class, state: state.name, realPrice: phone.basePrice, askPrice: askPrice, color: phone.color, cam: phone.cam };
+            game.chat = [{ type: 'in', text: `Привет! Продаю ${phone.model}, состояние: ${state.name}. Отдам за ${askPrice}₽` }];
+            save(); render();
+        }
+
+        function makeOffer(amount) {
+            if (game.money < amount) { showToast("Не хватает денег! 💸", true); return; }
+            if (amount >= game.currentClient.askPrice * 0.7) {
+                game.chat.push({ type: 'out', text: `Беру за ${amount}₽. Договорились!` });
+                game.chat.push({ type: 'in', text: `Отлично! Телефон твой.` });
+                game.money -= amount;
+                game.inventory.push({ model: game.currentClient.phone, class: game.currentClient.class, state: game.currentClient.state, realPrice: game.currentClient.realPrice, buyPrice: amount, color: game.currentClient.color, cam: game.currentClient.cam });
+                game.currentClient = null; showToast("Телефон куплен!"); setTimeout(() => spawnClient(), 2000);
+            } else if (amount >= game.currentClient.askPrice * 0.4) {
+                const counter = Math.floor((amount + game.currentClient.askPrice) / 2);
+                game.currentClient.askPrice = counter;
+                game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
+                game.chat.push({ type: 'in', text: `Не, это дешево. Давай за ${counter}₽, и по рукам.` });
+            } else {
+                game.chat.push({ type: 'out', text: `Давай за ${amount}₽.` });
+                game.chat.push({ type: 'in', text: `Ты че, издеваешься? За такие деньги только корпус. Не продам.` });
+                game.currentClient = null; showToast("Клиент ушел 😡", true); setTimeout(() => spawnClient(), 2000);
+            }
+            save(); render();
+        }
+
+        function skipClient() {
+            game.chat.push({ type: 'out', text: `Извини, дорого для меня.` });
+            game.chat.push({ type: 'in', text: `Ладно, бывай.` });
+            game.currentClient = null; setTimeout(() => spawnClient(), 1500); save(); render();
+        }
+
+        function repairItem(index) {
+            let item = game.inventory[index];
+            let stateObj = STATES.find(s => s.name === item.state);
+            let nextStateIdx = STATES.indexOf(stateObj) + 1;
+            if (nextStateIdx >= STATES.length) return;
+            let nextState = STATES[nextStateIdx], repairCost = stateObj.repair;
+            if (game.money < repairCost) { showToast("Не хватает на ремонт! 🔧", true); return; }
+            game.money -= repairCost; item.state = nextState.name;
+            showToast(`Починено до "${nextState.name}"!`); save(); render();
+        }
+
+        function sellItem(index) {
+            let item = game.inventory[index];
+            let stateObj = STATES.find(s => s.name === item.state);
+            let sellPrice = Math.floor(item.realPrice * stateObj.mult * (0.9 + Math.random() * 0.3));
+            game.money += sellPrice; game.inventory.splice(index, 1);
+            showToast(`Продал за ${sellPrice}₽! 💰`); save(); render();
+        }
+
+        function switchTab(tab) {
+            game.tab = tab;
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if (tab === 'market') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+            if (tab === 'chat') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+            if (tab === 'inventory') document.querySelectorAll('.nav-btn')[2].classList.add('active');
+            if (tab === 'profile') document.querySelectorAll('.nav-btn')[3].classList.add('active');
+            if (tab === 'chat' && !game.currentClient) spawnClient();
+            render();
+        }
+
+        function getBadge(classType) {
+            if (classType === 'budget') return '<span class="badge budget">Бюджет</span>';
+            if (classType === 'mid') return '<span class="badge mid">Средний</span>';
+            if (classType === 'flagship') return '<span class="badge flagship">Флагман</span>';
+            return '';
+        }
+
+        function drawPhone(color, camType) {
+            return `<div class="phone-body cam-${camType}" style="border-color: ${color}; background: ${color}22;"></div>`;
+        }
+
+        function render() {
+            document.getElementById('ui-money').innerText = `💰 ${game.money.toLocaleString('ru-RU')}₽`;
+            updateClockUI();
+            const content = document.getElementById('ui-content');
+            
+            content.className = 'content'; // Сброс классов
+            content.innerHTML = '';
+
+            if (game.tab === 'market') {
+                content.innerHTML += `
+                    <div class="filters">
+                        <button class="filter-btn ${game.marketFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">Все</button>
+                        <button class="filter-btn ${game.marketFilter === 'budget' ? 'active' : ''}" onclick="setFilter('budget')">Бюджет</button>
+                        <button class="filter-btn ${game.marketFilter === 'mid' ? 'active' : ''}" onclick="setFilter('mid')">Средние</button>
+                        <button class="filter-btn ${game.marketFilter === 'flagship' ? 'active' : ''}" onclick="setFilter('flagship')">Флагманы</button>
+                    </div>
+                    <div class="grid">
+                `;
+                PHONES_DB.forEach(phone => {
+                    if (game.marketFilter !== 'all' && phone.class !== game.marketFilter) return;
+                    content.innerHTML += `
+                        <div class="card">
+                            <div class="card-img-placeholder">${drawPhone(phone.color, phone.cam)}</div>
+                            <div class="card-header">
+                                <div class="card-title">${phone.model}</div>
+                                ${getBadge(phone.class)}
+                            </div>
+                            <div class="card-price">${phone.basePrice.toLocaleString('ru-RU')} ₽</div>
+                            <div class="card-buttons">
+                                <button class="btn" onclick="buyNewPhone(${phone.id})">Купить</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                content.innerHTML += `</div>`;
+            } 
+            else if (game.tab === 'chat') {
+                content.innerHTML += `<div class="chat-box">`;
+                game.chat.forEach(msg => {
+                    content.innerHTML += `<div class="msg ${msg.type}">${msg.text}</div>`;
+                });
+                content.innerHTML += `</div>`;
+
+                if (game.currentClient) {
+                    const ask = game.currentClient.askPrice, low = Math.floor(ask * 0.4), mid = Math.floor(ask * 0.65);
+                    content.innerHTML += `<div class="actions">`;
+                    if (game.money >= ask) {
+                        content.innerHTML += `
+                            <button class="btn-act" onclick="makeOffer(${mid})">Предложить ${mid}₽ (сбить)</button>
+                            <button class="btn-act success" onclick="makeOffer(${ask})">Согласиться за ${ask}₽</button>
+                            <button class="btn-act gray" onclick="skipClient()">Послать</button>
+                        `;
+                    } else if (game.money >= low) {
+                        content.innerHTML += `
+                            <button class="btn-act danger" onclick="makeOffer(${low})">Предложить ${low}₽ (нагло)</button>
+                            <button class="btn-act gray" onclick="skipClient()">Послать</button>
+                        `;
+                    } else {
+                        content.innerHTML += `<button class="btn-act gray" onclick="skipClient()">Нет денег. Послать.</button>`;
+                    }
+                    content.innerHTML += `</div>`;
+                }
+            } 
+            else if (game.tab === 'inventory') {
+                if (game.inventory.length === 0) content.innerHTML = '<div class="empty">Склад пуст.</div>';
+                content.innerHTML += `<div class="grid">`;
+                game.inventory.forEach((item, i) => {
+                    let stObj = STATES.find(s => s.name === item.state);
+                    let nextIdx = STATES.indexOf(stObj) + 1;
+                    let canRepair = nextIdx < STATES.length;
+                    let repairCost = canRepair ? stObj.repair : 0;
+                    let sellPrice = Math.floor(item.realPrice * stObj.mult * 1.0);
+
+                    content.innerHTML += `
+                        <div class="card">
+                            <div class="card-img-placeholder">${drawPhone(item.color, item.cam)}</div>
+                            <div class="card-header">
+                                <div class="card-title">${item.model}</div>
+                                <div class="card-sub">${item.state}</div>
+                                ${getBadge(item.class)}
+                            </div>
+                            <div class="card-sub" style="color:#45f3ff; font-weight:800;">Сбыт: ~${sellPrice}₽</div>
+                            <div class="card-buttons">
+                                ${canRepair ? `<button class="btn btn-repair" onclick="repairItem(${i})">Ремонт (${repairCost}₽)</button>` : `<button class="btn" disabled>Идеал</button>`}
+                                <button class="btn btn-sell" onclick="sellItem(${i})">Продать</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                content.innerHTML += `</div>`;
+            }
+            else if (game.tab === 'profile') {
+                content.innerHTML = `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div style="font-size: 50px; margin-bottom: 10px;">👤</div>
+                        <h2 style="color: #fff; margin-bottom: 5px;">Твой Профиль</h2>
+                        <p style="color: #888; margin-bottom: 20px;">Перекуп со стажем</p>
+                        <div style="background: #1a1a20; padding: 15px; border-radius: 12px; border: 1px solid #2a2a35; margin-bottom: 20px; text-align: left;">
+                            <p style="margin-bottom: 5px; color: #ccc;">День: <b style="color: #fff;">${game.day}</b></p>
+                            <p style="margin-bottom: 5px; color: #ccc;">Баланс: <b style="color: #ffdf6b;">${game.money.toLocaleString('ru-RU')}₽</b></p>
+                            <p style="color: #ccc;">Телефонов на складе: <b style="color: #fff;">${game.inventory.length}</b></p>
+                        </div>
+                        <button class="btn" style="background: #45a29e; color: #fff; margin-bottom: 10px;" onclick="exportSave()">📤 Экспорт сохранения</button>
+                        <button class="btn" style="background: #ff6b6b; color: #fff; margin-bottom: 10px;" onclick="importSave()">📥 Импорт сохранения</button>
+                    </div>
+                `;
+            }
+        }
+
+        load();
+    </script>
+</body>
+</html>
